@@ -1,3 +1,46 @@
+@import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Custom base styles */
+@layer base {
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    body {
+      @apply text-gray-800 antialiased;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      @apply font-semibold;
+    }
+    
+    /* Additional global styles can be added here */
+  }
+  
+  /* Custom component styles */
+  @layer components {
+    .container {
+      @apply max-w-7xl mx-auto;
+    }
+    
+    .btn {
+      @apply inline-flex items-center justify-center px-5 py-2 rounded-md font-medium transition-colors;
+    }
+    
+    .btn-primary {
+      @apply bg-green-600 text-white hover:bg-green-700;
+    }
+    
+    .btn-outlined {
+      @apply border border-green-600 text-green-600 hover:bg-green-50;
+    }
+    
+    /* You can add more component classes here */
+  }
+  
+  /* Custom utility styles */
+  @layer utilities {
+    /* Add any custom utility classes here */
+  }

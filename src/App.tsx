@@ -1,11 +1,13 @@
-import './App.css'
+
+import Signin from "./components/Signin";
 
 function App() {
+
   return (
     <>
-      <div>Welcome to the interview AI Frontend !</div>
+      <Signin />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

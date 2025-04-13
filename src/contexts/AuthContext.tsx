@@ -1,24 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";
-import { Session} from "@supabase/supabase-js";
-
-// Define the shape of the context value
-interface AuthContextType {
-  session: Session | null | undefined;
-  isVerified: boolean;
-  signUpNewUser: (email: string, password: string) => Promise<{
-    success: boolean;
-    data?: any;
-    error?: any;
-    needsVerification?: boolean;
-  }>;
-  signInUser: (email: string, password: string) => Promise<{
-    success: boolean;
-    data?: any;
-    error?: any;
-  }>;
-  signOut: () => Promise<void>;
-}
+import { supabase } from "@/services/supabase/supabaseClient";
+import { Session } from "@supabase/supabase-js";
+import { AuthContextType } from "@/types/authContext";
 
 // Create context with proper typing
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import Signin from "@/pages/Signin"
 import Signup from "@/pages/Signup"
 import PrivateRoute from "@/components/PrivateRoute"
-import { AuthContextProvider, UserAuth } from "@/contexts/AuthContext"
+import {UserAuth } from "@/contexts/AuthContext"
 import Landing from "@/pages/Landing"
 import NotFound from "./pages/NotFound"
 

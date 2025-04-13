@@ -4,8 +4,12 @@ import Signup from "@/pages/Signup"
 import { UserAuth } from "@/contexts/AuthContext"
 import DashboardLayout from "@/components/layout/DashbordLayout"
 import DashboardOverview from "@/pages/dashboard/DashboardOverview"
+import JobsPage from "@/pages/dashboard/JobsPage"
 import Landing from "@/pages/Landing"
 import NotFound from "./pages/NotFound"
+import JobDetailPage from "@/pages/dashboard/JobDetailPage"
+import CandidatesPage from "@/pages/dashboard/CandidatesPage"
+import SettingsPage from "@/pages/dashboard/SettingsPage"
 
 function App() {
   const { session } = UserAuth();
@@ -18,12 +22,12 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<DashboardLayout />}>
             <Route index element={<DashboardOverview />} />
-            {/* <Route path="jobs" element={<JobsPage />} />
+            <Route path="jobs" element={<JobsPage />} />
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
             <Route path="candidates" element={<CandidatesPage />} />
-            <Route path="settings" element={<SettingsPage />} /> */}
-          </Route>
-          <Route path="*" element={<NotFound />} 
+            <Route path="settings" element={<SettingsPage />} />
+        </Route>
+        <Route path="*" element={<NotFound />} 
         />
         </Routes>
       </Router>

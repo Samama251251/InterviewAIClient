@@ -5,12 +5,13 @@ import Signin from "./components/Signin";
 import Dashboard from "./components/Dashboard";
 import PrivateRoute from "./components/PrivateRoute";
 import LandingPage from "./components/LandingPage";
+
 export const router = createBrowserRouter([
   { path: "/", element: <App /> },
   { path: "/signup", element: <Signup /> },
   { path: "/signin", element: <Signin /> },
   {
-    path: "/dashboard",
+    path: "/dashboard/*",
     element: (
       <PrivateRoute>
         <Dashboard />

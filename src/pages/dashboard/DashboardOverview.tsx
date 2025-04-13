@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { mockJobs, mockInterviews } from '@/data/mockData';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { FileText, CheckCheck, Clock, Users } from 'lucide-react';
 
 const DashboardOverview: React.FC = () => {
@@ -22,6 +23,17 @@ const DashboardOverview: React.FC = () => {
   const allInterviews = Object.values(mockInterviews).flat();
   const pendingInterviews = allInterviews.filter(interview => interview.status === 'pending').length;
   const completedInterviews = allInterviews.filter(interview => interview.status === 'completed').length;
+  
+  // Data for bar chart (jobs and applicant count)
+  const chartData = mockJobs
+    .filter(job => job.status === 'active')
+    .slice(0, 4)
+    .map(job => ({
+      name: job.title.length > 15 ? `${job.title.substring(0, 15)}...` : job.title,
+      applicants: job.applicantCount,
+      pending: job.pendingInterviewsCount,
+      completed: job.completedInterviewsCount,
+    }));
 
   return (
     <div className="space-y-6">
@@ -94,46 +106,76 @@ const DashboardOverview: React.FC = () => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Jobs</CardTitle>
-          <CardDescription>
-            Your most recently posted jobs
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            {mockJobs.slice(0, 6).map((job) => (
-              <div key={job.id} className="flex flex-col justify-between border rounded-lg p-4 h-full">
-                <div>
-                  <h3 className="font-medium">{job.title}</h3>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {job.applicantCount} applicants
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {job.status === 'active' ? 'Active' : 'Closed'}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => navigate(`/dashboard/jobs/${job.id}`)}
+      <div className="grid gap-4 md:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Job Applications Overview</CardTitle>
+            <CardDescription>
+              Applicants and interview status for your active jobs
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
                 >
-                  View Details
-                </Button>
-              </div>
-            ))}
-          </div>
-          <Button 
-            variant="outline" 
-            className="w-full mt-6"
-            onClick={() => navigate('/dashboard/jobs')}
-          >
-            View All Jobs
-          </Button>
-        </CardContent>
-      </Card>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="applicants" fill="#10b981" name="Applicants" />
+                  <Bar dataKey="pending" fill="#93c5fd" name="Pending Interviews" />
+                  <Bar dataKey="completed" fill="#6366f1" name="Completed Interviews" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Jobs</CardTitle>
+            <CardDescription>
+              Your most recently posted jobs
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {mockJobs.slice(0, 3).map((job) => (
+                <div key={job.id} className="flex justify-between items-center">
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium leading-none">{job.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {job.applicantCount} applicants
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => navigate(`/dashboard/jobs/${job.id}`)}
+                  >
+                    View
+                  </Button>
+                </div>
+              ))}
+              
+              <Button 
+                variant="outline" 
+                className="w-full mt-4"
+                onClick={() => navigate('/dashboard/jobs')}
+              >
+                View All Jobs
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

@@ -6,7 +6,7 @@ import Navbar from './Navbar';
 
 const DashboardLayout: React.FC = () => {
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider defaultOpen={false}>
       <div className="flex h-screen w-full bg-gray-50">
         <Sidebar />
         <div className="flex flex-col flex-1 overflow-hidden">

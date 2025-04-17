@@ -13,7 +13,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   // Sign up
   const signUpNewUser = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signUp({
-      email: email.toLowerCase(),
+      email: email,
       password: password,
     });
 
@@ -25,14 +25,15 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
       return { success: false, error: "User already exists" };
     }
 
-    console.log("User data", data);
-
-    console.log("User error", error);
-
     if (error) {
       console.log("User already exists");
       console.error("Error signing up: ", error);
-      return { success: false, error };
+      if (error.code === 'user_already_exists') {
+        return { success: false, error: "User already exists" };
+      }
+      else {
+        return { success: false, error: "Sorry, we couldn't create your account. Please try again." };
+      }
     }
 
     console.log(data.user);
@@ -51,13 +52,14 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   const signInUser = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase(),
+        email: email,
         password: password,
       });
 
       // Handle Supabase error explicitly
       if (error) {
         console.error("Sign-in error:", error.message);
+        console.log("Sign in error: ", error)
         return { success: false, error: error.message };
       }
 

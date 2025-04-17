@@ -17,14 +17,29 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
       password: password,
     });
 
+    console.log("Data coming in", data)
+
+    // Check if the user has already created an account then we will return an error
+    if (data.user?.user_metadata?.email_verified == true) {
+      console.log("User already exists");
+      return { success: false, error: "User already exists" };
+    }
+
+    console.log("User data", data);
+
+    console.log("User error", error);
+
     if (error) {
+      console.log("User already exists");
       console.error("Error signing up: ", error);
       return { success: false, error };
     }
 
+    console.log(data.user);
+
     // Check if email confirmation is required
     const needsVerification = data?.user?.identities?.[0]?.identity_data?.email_verified === false;
-    
+
     return { 
       success: true, 
       data, 

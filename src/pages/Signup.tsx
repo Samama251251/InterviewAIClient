@@ -20,13 +20,13 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { signUpNewUser } = UserAuth();
+
   const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     // Validate passwords match
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -37,6 +37,7 @@ const SignUp = () => {
     try {
       const result = await signUpNewUser(email, password);
 
+
       if (result.success) {
         if (result.needsVerification) {
           setVerificationSent(true);
@@ -44,7 +45,8 @@ const SignUp = () => {
           navigate("/dashboard");
         }
       } else {
-        setError(result.error.message);
+        console.log("GOT ERROR", result)
+        setError(result.error);
       }
     } catch (err) {
       setError("An unexpected error occurred.");
@@ -172,41 +174,6 @@ const SignUp = () => {
                 </div>
               </div>
             </div>
-            
-            <div className="space-y-3">
-              <Label className="text-green-700">I am registering as:</Label>
-              <RadioGroup 
-                defaultValue="candidate" 
-                value={role}
-                onValueChange={setRole}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-green-50">
-                  <RadioGroupItem 
-                    value="candidate" 
-                    id="candidate"
-                    className="border-green-400 text-green-600" 
-                  />
-                  <Label htmlFor="candidate" className="flex items-center cursor-pointer">
-                    <Briefcase className="mr-2 h-4 w-4 text-green-600" />
-                    Candidate
-                  </Label>
-                </div>
-                
-                <div className="flex items-center space-x-2 p-2 rounded-md hover:bg-green-50">
-                  <RadioGroupItem 
-                    value="admin" 
-                    id="admin"
-                    className="border-green-400 text-green-600" 
-                  />
-                  <Label htmlFor="admin" className="flex items-center cursor-pointer">
-                    <ShieldCheck className="mr-2 h-4 w-4 text-green-600" />
-                    Company Admin
-                  </Label>
-                </div>
-              </RadioGroup>
-            </div>
-            
             {error && (
               <div className="px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-md">
                 {error}

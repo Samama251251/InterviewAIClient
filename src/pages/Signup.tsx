@@ -4,15 +4,12 @@ import { UserAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, Mail, Lock, CheckCircle, Briefcase, ShieldCheck } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-
+import { Eye, EyeOff, Mail, Lock, CheckCircle, User } from "lucide-react";
 const SignUp = () => {
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [role, setRole] = useState("candidate");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
@@ -35,7 +32,7 @@ const SignUp = () => {
     }
 
     try {
-      const result = await signUpNewUser(email, password);
+      const result = await signUpNewUser(email, password, name);
 
 
       if (result.success) {
@@ -123,6 +120,23 @@ const SignUp = () => {
                   placeholder="Email address"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 border-green-200 focus-visible:ring-green-500"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-green-600">
+                  <User size={18} />
+                </div>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="pl-10 border-green-200 focus-visible:ring-green-500"
                   required
                 />

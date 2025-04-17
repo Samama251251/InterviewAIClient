@@ -11,10 +11,15 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   const [isVerified, setIsVerified] = useState(false);
 
   // Sign up
-  const signUpNewUser = async (email: string, password: string) => {
+  const signUpNewUser = async (email: string, password: string, name: string) => {
     const { data, error } = await supabase.auth.signUp({
       email: email,
       password: password,
+      options: {
+        data: {
+          name: name
+        }
+      }
     });
 
     console.log("Data coming in", data)

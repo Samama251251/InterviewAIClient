@@ -4,7 +4,7 @@ import { Session } from "@supabase/supabase-js";
 export interface AuthContextType {
     session: Session | null | undefined;
     isVerified: boolean;
-    signUpNewUser: (email: string, password: string) => Promise<{
+    signUpNewUser: (email: string, password: string, name: string) => Promise<{
       success: boolean;
       data?: any;
       error?: any;

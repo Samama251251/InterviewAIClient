@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User, Mail, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
@@ -36,15 +35,6 @@ const ProfilePage: React.FC = () => {
     } else {
       toast({ variant: "destructive", title: "Update Failed", description: error || "Could not update profile." });
     }
-  };
-
-  // Get user initials for avatar fallback
-  const getInitials = () => {
-    if (!name) return 'U';
-    if (name.includes('@')) {
-      return name.split('@')[0].substring(0, 2).toUpperCase();
-    }
-    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
   };
 
   return (

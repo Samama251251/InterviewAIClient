@@ -16,4 +16,9 @@ export interface AuthContextType {
       error?: any;
     }>;
     signOut: () => Promise<void>;
+    updateUser: (metadata: { name: string }) => Promise<{
+      success: boolean;
+      data?: any;
+      error?: any;
+    }>;
 }

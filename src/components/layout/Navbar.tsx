@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -93,7 +92,10 @@ const Navbar: React.FC = () => {
                 </div>
               </div>
               
-              <DropdownMenuItem className="cursor-pointer flex items-center gap-2 py-2 px-2 rounded-md">
+              <DropdownMenuItem 
+                className="cursor-pointer flex items-center gap-2 py-2 px-2 rounded-md"
+                onClick={() => navigate('/dashboard/profile')}
+              >
                 <UserIcon className="h-4 w-4 text-green-600" />
                 <span>My Profile</span>
               </DropdownMenuItem>

@@ -10,6 +10,7 @@ import NotFound from "./pages/NotFound"
 import JobDetailPage from "@/pages/dashboard/JobDetailPage"
 import CandidatesPage from "@/pages/dashboard/CandidatesPage"
 import SettingsPage from "@/pages/dashboard/SettingsPage"
+import ProfilePage from "@/pages/dashboard/ProfilePage"
 
 function App() {
   const { session } = UserAuth();
@@ -26,6 +27,7 @@ function App() {
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
             <Route path="candidates" element={<CandidatesPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<NotFound />} 
         />

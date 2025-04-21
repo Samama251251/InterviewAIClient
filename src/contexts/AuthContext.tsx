@@ -113,9 +113,28 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
     }
   }
 
+  // Update user details
+  const updateUser = async (metadata: { name: string }) => {
+    const { data, error } = await supabase.auth.updateUser({
+      data: metadata
+    });
+
+    if (error) {
+      console.error("Error updating user:", error);
+      return { success: false, error: error.message };
+    }
+
+    // Re-fetch session to reflect updated metadata immediately
+    // This might happen automatically via onAuthStateChange, but explicit fetch can be safer
+    supabase.auth.refreshSession();
+    
+    console.log("User updated successfully:", data);
+    return { success: true, data };
+  };
+
   return (
     <AuthContext.Provider
-      value={{ signUpNewUser, signInUser, session, signOut, isVerified }}
+      value={{ signUpNewUser, signInUser, session, signOut, isVerified, updateUser }}
     >
       {children}
     </AuthContext.Provider>

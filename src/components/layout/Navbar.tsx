@@ -60,14 +60,14 @@ const Navbar: React.FC = () => {
                 className="flex items-center gap-2 px-2 py-1.5 hover:bg-green-50 transition-colors rounded-full"
               >
                 <Avatar className="h-8 w-8 border-2 border-green-100 ring-2 ring-green-50">
-                  <AvatarImage src="" />
+                  <AvatarImage src={session?.user?.image || undefined} />
                   <AvatarFallback className="bg-gradient-to-br from-green-500 to-emerald-600 text-white font-medium">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:flex flex-col items-start">
                   <span className="text-sm font-semibold line-clamp-1">
-                    {userName.includes('@') ? userName.split('@')[0] : userName}
+                    {session?.user?.name}
                   </span>
                   <span className="text-xs text-gray-500 line-clamp-1">
                     {userEmail}

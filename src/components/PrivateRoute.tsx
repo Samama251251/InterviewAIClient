@@ -1,16 +1,19 @@
 // import  { useEffect, useState } from "react";
 import { UserAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
-import { Session } from "@supabase/supabase-js";
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
-  const { session } = UserAuth() as { session: Session | null | undefined };
+  const { session, isPending } = UserAuth();
 
-  if (session === undefined) {
-    return <div>Loading...</div>;
+  if (isPending) {
+    return <div>Loading session...</div>;
   }
 
-  return <div>{session ? <>{children}</> : <Navigate to="/landing" />}</div>;
+  if (!session) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 export default PrivateRoute;

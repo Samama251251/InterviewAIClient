@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
   // Get user initials for avatar fallback
   const userEmail = session?.user?.email || '';
 
-  const userName = session?.user?.user_metadata?.name || "Unknown Name";
+  const userName = session?.user?.name || "Unknown Name";
   const getInitials = () => {
     if (!userName) return 'U';
     if (userName.includes('@')) {

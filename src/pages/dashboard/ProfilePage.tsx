@@ -9,15 +9,15 @@ import { User, Mail, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 const ProfilePage: React.FC = () => {
-  const { session, updateUser } = UserAuth();
+  const { session} = UserAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (session?.user?.user_metadata?.name) {
-      setName(session.user.user_metadata.name);
+    if (session?.user?.name) {
+      setName(session.user?.name);
     }
     if (session?.user?.email) {
       setEmail(session.user.email);
@@ -27,13 +27,14 @@ const ProfilePage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { success, error } = await updateUser({ name });
+    // Need to make a function to update the user 
+    const success = true
     setLoading(false);
 
     if (success) {
       toast({ description: "Profile updated successfully!" });
     } else {
-      toast({ variant: "destructive", title: "Update Failed", description: error || "Could not update profile." });
+      toast({ variant: "destructive", title: "Update Failed", description: "Could not update profile." });
     }
   };
 

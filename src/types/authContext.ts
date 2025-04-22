@@ -34,6 +34,9 @@ export interface AuthContextType {
     // Add Google Sign-In function
     signInWithGoogle: () => Promise<void>; // Assuming it initiates the flow
 
+    // Add GitHub Sign-In function
+    signInWithGithub: () => Promise<void>;
+
     signOut: () => Promise<void>; // Keep signOut, implementation might change
 
     // Removed updateUser for now

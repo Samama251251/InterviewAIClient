@@ -40,6 +40,22 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
     }
   };
 
+  // GitHub Sign In
+  const signInWithGithub = async () => {
+    try {
+      // Initiate GitHub Sign-In flow
+      await authClient.signIn.social(
+        {
+          provider: "github",
+          callbackURL: "http://localhost:5173/dashboard"
+        }
+      );
+    } catch (error) {
+      console.error("GitHub Sign-In error:", error);
+      alert("Failed to sign in with GitHub. Please try again.");
+    }
+  };
+
   // Sign out
   async function signOut() {
     try {
@@ -57,7 +73,14 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   // Provide isPending in the context value
   return (
     <AuthContext.Provider
-      value={{ session, isVerified, isPending, signInWithGoogle, signOut }}
+      value={{ 
+        session, 
+        isVerified, 
+        isPending, 
+        signInWithGoogle, 
+        signInWithGithub, 
+        signOut ,
+      }}
     >
       {/* Render children directly, PrivateRoute will handle loading UI */}
       {children}

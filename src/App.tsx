@@ -28,11 +28,11 @@ function App() {
             }
           >
             <Route index element={<DashboardOverview />} />
-            <Route path="jobs" element={<JobsPage />} />
-            <Route path="jobs/:jobId" element={<JobDetailPage />} />
-            <Route path="candidates" element={<CandidatesPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
+            <Route path="jobs" element={<PrivateRoute><JobsPage /></PrivateRoute>} />
+            <Route path="jobs/:jobId" element={<PrivateRoute><JobDetailPage /></PrivateRoute>} />
+            <Route path="candidates" element={<PrivateRoute><CandidatesPage /></PrivateRoute>} />
+            <Route path="settings" element={<PrivateRoute><SettingsPage /></PrivateRoute>} />
+            <Route path="profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

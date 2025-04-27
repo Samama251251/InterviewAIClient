@@ -1,4 +1,4 @@
-import React from 'react';
+import { use, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -10,10 +10,31 @@ import {
 import { Button } from '@/components/ui/button';
 import { mockJobs, mockInterviews } from '@/data/mockData';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { FileText, CheckCheck, Clock, Users } from 'lucide-react';
-
-const DashboardOverview: React.FC = () => {
+import { FileText, CheckCheck, Clock, Users, Server, Lock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { getIntervieweeJobs } from '@/services/api/interviewee';
+interface AuthStatus {
+  message?: string;
+  error?: string;
+  status?: number;
+  user?: {
+    id: string;
+    email: string;
+    name?: string;
+    emailVerified?: boolean;
+  };
+}
+const DashboardOverview = () => {
   const navigate = useNavigate();
+  const {data, isError, isSuccess} = useQuery({
+    queryKey: ["jobs"],
+    queryFn: getIntervieweeJobs
+  })
+  console.log("this is the data from the getJobs api", data)
+  const [serverMessage, setServerMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
 
   // Calculate statistics
   const activeJobs = mockJobs.filter(job => job.status === 'active').length;
@@ -34,6 +55,50 @@ const DashboardOverview: React.FC = () => {
       pending: job.pendingInterviewsCount,
       completed: job.completedInterviewsCount,
     }));
+
+  const checkServerStatus = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('http://localhost:5000/', {
+        credentials: 'include', // This sends cookies with session data
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      const data = await response.json();
+      setServerMessage(data.message);
+    } catch (error) {
+      setServerMessage('Error connecting to server');
+      console.error('Error fetching server status:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const checkAuthStatus = async () => {
+    try {
+      setAuthLoading(true);
+      const response = await fetch('http://localhost:5000/api/protected', {
+        credentials: 'include', // This sends cookies with session data
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAuthStatus(data);
+      } else {
+        setAuthStatus({ error: 'Not authenticated', status: response.status });
+      }
+    } catch (error) {
+      setAuthStatus({ error: 'Error checking authentication status' });
+      console.error('Error checking auth status:', error);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -102,6 +167,68 @@ const DashboardOverview: React.FC = () => {
             <p className="text-xs text-muted-foreground mt-1">
               {completedInterviews > 0 ? 'Interviews with results' : 'No completed interviews'}
             </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Server Status</CardTitle>
+              <CardDescription>Check the server connection</CardDescription>
+            </div>
+            <Server className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={checkServerStatus} 
+              disabled={isLoading}
+            >
+              {isLoading ? 'Checking...' : 'Check Server Status'}
+            </Button>
+            {serverMessage && (
+              <div className="p-4 bg-muted rounded-md">
+                <p className="text-sm break-words">{serverMessage}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Authentication Status</CardTitle>
+              <CardDescription>Check if you're authenticated</CardDescription>
+            </div>
+            <Lock className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Button 
+              onClick={checkAuthStatus} 
+              disabled={authLoading}
+              variant="outline"
+            >
+              {authLoading ? 'Checking...' : 'Check Authentication'}
+            </Button>
+            {authStatus && (
+              <div className={`p-4 rounded-md ${authStatus.error ? 'bg-red-100' : 'bg-green-100'}`}>
+                {authStatus.error ? (
+                  <p className="text-sm text-red-700">{authStatus.error}</p>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-green-800">{authStatus.message}</p>
+                    {authStatus.user && (
+                      <div className="text-xs space-y-1 text-green-700">
+                        <p>User ID: {authStatus.user.id}</p>
+                        <p>Email: {authStatus.user.email}</p>
+                        {authStatus.user.name && <p>Name: {authStatus.user.name}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

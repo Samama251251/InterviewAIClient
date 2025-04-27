@@ -11,11 +11,13 @@ import CandidatesPage from "@/pages/dashboard/CandidatesPage"
 import SettingsPage from "@/pages/dashboard/SettingsPage"
 import ProfilePage from "@/pages/dashboard/ProfilePage"
 import PrivateRoute from "@/components/PrivateRoute"
-
+import IntervieweeDashboard from "@/pages/IntervieweDashboard"
 function App() {
   return (
+    <div className="font-sans">
       <Router>
         <Routes>
+          <Route path = "/int" element = {<IntervieweeDashboard/>}/>
           <Route path="/" element={<Landing />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
@@ -37,6 +39,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
+    </div>
   )
 }
 

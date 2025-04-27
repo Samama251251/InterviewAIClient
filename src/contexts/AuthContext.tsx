@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-// import { supabase } from "@/services/supabase/supabaseClient"; // No longer needed for auth operations
 import { AuthContextType } from "@/types/authContext";
 import { authClient } from "@/lib/auth-client"; //import the auth client
 
@@ -7,12 +6,13 @@ import { authClient } from "@/lib/auth-client"; //import the auth client
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthContextProvider = ({ children }: { children: React.ReactNode }) => {
+  // Is pending represets the loading state of authentications session.When true, it indicates that the session data is still being fetched or authenticated
+  // It is useful for showing loading indicators in your ui while authentication status is being determined 
   const { data: session, isPending } = authClient.useSession();
   const [isVerified, setIsVerified] = useState(false);
-  console.log("This is the value of isPending", isPending)
+  console.log("This is the value of session", session)
   useEffect(() => {
     if (session?.user) {
-      // Assuming session.user structure from better-auth includes emailVerified
       setIsVerified(session.user.emailVerified || false);
     } else {
       setIsVerified(false);
@@ -23,7 +23,6 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
   // Google Sign In
   const signInWithGoogle = async () => {
     try {
-      // Initiate Google Sign-In flow
       await authClient.signIn.social(
         {
            provider: "google",
@@ -55,6 +54,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
       alert("Failed to sign in with GitHub. Please try again.");
     }
   };
+  
 
   // Sign out
   async function signOut() {

@@ -12,11 +12,13 @@ import SettingsPage from "@/pages/dashboard/SettingsPage"
 import ProfilePage from "@/pages/dashboard/ProfilePage"
 import PrivateRoute from "@/components/PrivateRoute"
 import IntervieweeDashboard from "@/pages/IntervieweDashboard"
+import CodeEditor from "@/pages/CodeEditor/index"
 function App() {
   return (
     <div className="font-sans">
       <Router>
         <Routes>
+          <Route path = "/code" element = {<CodeEditor/>}/>
           <Route path = "/int" element = {<IntervieweeDashboard/>}/>
           <Route path="/" element={<Landing />} />
           <Route path="/signin" element={<Signin />} />

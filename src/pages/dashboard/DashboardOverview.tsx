@@ -1,4 +1,4 @@
-import { use, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -26,7 +26,7 @@ interface AuthStatus {
 }
 const DashboardOverview = () => {
   const navigate = useNavigate();
-  const {data, isError, isSuccess} = useQuery({
+  const {data} = useQuery({
     queryKey: ["jobs"],
     queryFn: getIntervieweeJobs
   })

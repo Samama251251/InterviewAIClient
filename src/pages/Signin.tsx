@@ -56,17 +56,17 @@ const SignIn = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <Card className="w-full max-w-md mx-4 shadow-lg border border-green-100">
-        <CardHeader className="space-y-2 border-b border-green-100 bg-green-50/50 pb-6">
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Card className="w-full max-w-md mx-4 shadow-lg border-border bg-card">
+        <CardHeader className="space-y-2 border-b border-border bg-muted/50 pb-6">
           <div className="flex items-center justify-center mb-3">
-            <CheckCircle className="h-10 w-10 text-green-600" />
+            <CheckCircle className="h-10 w-10 text-primary" />
           </div>
-          <CardTitle className="text-2xl font-bold tracking-tight text-center text-green-800">
-            Welcome to TechInterviewPro
+          <CardTitle className="text-2xl font-bold tracking-tight text-center text-foreground">
+            Welcome Back
           </CardTitle>
-          <CardDescription className="text-center text-green-700 text-base">
-            Sign in or create an account to continue
+          <CardDescription className="text-center text-muted-foreground text-base">
+            Sign in to access your InterviewAI dashboard.
           </CardDescription>
         </CardHeader>
         
@@ -74,13 +74,13 @@ const SignIn = () => {
           <div className="space-y-4">
             <Button 
               variant="outline"
-              className="w-full border-slate-200 hover:bg-slate-50 text-slate-700 py-6 flex items-center justify-center shadow-sm transition-all duration-200 hover:shadow"
+              className="w-full py-6 flex items-center justify-center text-base hover:bg-primary/5"
               onClick={handleGoogleSignIn}
               disabled={isLoading.google || isLoading.github}
             >
               {isLoading.google ? (
                 <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-slate-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -95,13 +95,13 @@ const SignIn = () => {
             
             <Button 
               variant="outline"
-              className="w-full border-slate-200 hover:bg-slate-50 text-slate-700 py-6 flex items-center justify-center shadow-sm transition-all duration-200 hover:shadow"
+              className="w-full py-6 flex items-center justify-center text-base hover:bg-primary/5"
               onClick={handleGithubSignIn}
               disabled={isLoading.google || isLoading.github}
             >
               {isLoading.github ? (
                 <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-slate-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -116,13 +116,13 @@ const SignIn = () => {
           </div>
           
           {error && (
-            <div className="mt-4 px-3 py-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-md text-center">
+            <div className="mt-4 px-3 py-2 text-sm text-destructive-foreground bg-destructive border border-destructive/50 rounded-md text-center">
               {error}
             </div>
           )}
         </CardContent>
         
-        <CardFooter className="flex flex-col space-y-4 pt-2 pb-6 text-center text-sm text-green-700">
+        <CardFooter className="flex flex-col space-y-4 pt-2 pb-6 text-center text-sm text-muted-foreground">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </CardFooter>
       </Card>

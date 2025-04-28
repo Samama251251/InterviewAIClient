@@ -39,26 +39,26 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-3xl">
+    <div className="container mx-auto p-6 max-w-3xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-500 mt-1">Manage your personal information and account details</p>
+        <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
+        <p className="text-muted-foreground mt-1">Manage your personal information and account details</p>
       </div>
       
       <div className="grid gap-6 md:grid-cols-3">
         {/* Profile Details Section */}
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold flex items-center gap-2">
-              <User className="h-5 w-5 text-green-600" />
+        <Card className="md:col-span-2 border-border shadow-sm hover:shadow-md transition-all duration-300">
+          <CardHeader className="border-b border-border bg-muted/30">
+            <CardTitle className="text-xl font-semibold flex items-center gap-2 text-foreground">
+              <User className="h-5 w-5 text-primary" />
               Personal Information
             </CardTitle>
-            <CardDescription>Update your personal details</CardDescription>
+            <CardDescription className="text-muted-foreground">Update your personal details</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-5">
+            <CardContent className="space-y-5 pt-6">
               <div className="space-y-2.5">
-                <Label htmlFor="name" className="text-sm font-medium">
+                <Label htmlFor="name" className="text-sm font-medium text-foreground">
                   Full Name
                 </Label>
                 <div className="relative">
@@ -69,16 +69,16 @@ const ProfilePage: React.FC = () => {
                     onChange={(e) => setName(e.target.value)} 
                     placeholder="Your Name" 
                     required
-                    className="pl-10 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                    className="pl-10 border-border focus:border-primary focus:ring-primary"
                   />
-                  <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 </div>
               </div>
               
-              <Separator />
+              <Separator className="bg-border" />
               
               <div className="space-y-2.5">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">
                   Email Address
                 </Label>
                 <div className="relative">
@@ -87,21 +87,21 @@ const ProfilePage: React.FC = () => {
                     type="email" 
                     value={email} 
                     disabled
-                    className="pl-10 bg-gray-50 text-gray-500 border-gray-200"
+                    className="pl-10 bg-muted/50 text-muted-foreground border-border"
                   />
-                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   Your email address is associated with your account and cannot be changed here.
                 </p>
               </div>
             </CardContent>
             
-            <CardFooter className="flex justify-end border-t px-6 py-4 bg-gray-50">
+            <CardFooter className="flex justify-end border-t border-border px-6 py-4 bg-muted/30">
               <Button 
                 type="submit" 
-                disabled={loading || !name} 
-                className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
+                disabled={loading || !name}
+                className="flex items-center gap-2 hover:bg-primary/90 transition-colors duration-300"
               >
                 <Save className="h-4 w-4" />
                 {loading ? 'Saving Changes...' : 'Save Changes'}

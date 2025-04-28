@@ -101,69 +101,69 @@ const DashboardOverview = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
         <p className="text-muted-foreground mt-2">
           Welcome to your InterviewAI recruiter dashboard.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-foreground">
               Active Jobs
             </CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeJobs}</div>
+            <div className="text-2xl font-bold text-foreground">{activeJobs}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {activeJobs > 0 ? 'Currently accepting applications' : 'No active jobs'}
             </p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-foreground">
               Total Applicants
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalApplicants}</div>
+            <div className="text-2xl font-bold text-foreground">{totalApplicants}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {totalApplicants > 0 ? 'Across all job postings' : 'No applicants yet'}
             </p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-foreground">
               Pending Interviews
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{pendingInterviews}</div>
+            <div className="text-2xl font-bold text-foreground">{pendingInterviews}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {pendingInterviews > 0 ? 'Scheduled and waiting' : 'No pending interviews'}
             </p>
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="text-sm font-medium text-foreground">
               Completed Interviews
             </CardTitle>
             <CheckCheck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completedInterviews}</div>
+            <div className="text-2xl font-bold text-foreground">{completedInterviews}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {completedInterviews > 0 ? 'Interviews with results' : 'No completed interviews'}
             </p>
@@ -172,11 +172,11 @@ const DashboardOverview = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Server Status</CardTitle>
-              <CardDescription>Check the server connection</CardDescription>
+              <CardTitle className="text-foreground">Server Status</CardTitle>
+              <CardDescription className="text-muted-foreground">Check the server connection</CardDescription>
             </div>
             <Server className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
@@ -184,22 +184,23 @@ const DashboardOverview = () => {
             <Button 
               onClick={checkServerStatus} 
               disabled={isLoading}
+              className="hover:bg-primary/90 transition-colors duration-300"
             >
               {isLoading ? 'Checking...' : 'Check Server Status'}
             </Button>
             {serverMessage && (
-              <div className="p-4 bg-muted rounded-md">
-                <p className="text-sm break-words">{serverMessage}</p>
+              <div className="p-4 bg-muted rounded-md border border-border">
+                <p className="text-sm break-words text-foreground">{serverMessage}</p>
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Authentication Status</CardTitle>
-              <CardDescription>Check if you're authenticated</CardDescription>
+              <CardTitle className="text-foreground">Authentication Status</CardTitle>
+              <CardDescription className="text-muted-foreground">Check if you're authenticated</CardDescription>
             </div>
             <Lock className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
@@ -208,18 +209,19 @@ const DashboardOverview = () => {
               onClick={checkAuthStatus} 
               disabled={authLoading}
               variant="outline"
+              className="hover:bg-primary/5 transition-colors duration-300"
             >
               {authLoading ? 'Checking...' : 'Check Authentication'}
             </Button>
             {authStatus && (
-              <div className={`p-4 rounded-md ${authStatus.error ? 'bg-red-100' : 'bg-green-100'}`}>
+              <div className={`p-4 rounded-md border ${authStatus.error ? 'bg-destructive/10 border-destructive/50 text-destructive-foreground' : 'bg-primary/10 border-primary/50 text-primary-foreground'}`}>
                 {authStatus.error ? (
-                  <p className="text-sm text-red-700">{authStatus.error}</p>
+                  <p className="text-sm">{authStatus.error}</p>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-green-800">{authStatus.message}</p>
+                    <p className="text-sm font-medium">{authStatus.message}</p>
                     {authStatus.user && (
-                      <div className="text-xs space-y-1 text-green-700">
+                      <div className="text-xs space-y-1">
                         <p>User ID: {authStatus.user.id}</p>
                         <p>Email: {authStatus.user.email}</p>
                         {authStatus.user.name && <p>Name: {authStatus.user.name}</p>}
@@ -234,10 +236,10 @@ const DashboardOverview = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
-        <Card className="col-span-4">
+        <Card className="col-span-4 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader>
-            <CardTitle>Job Applications Overview</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-foreground">Job Applications Overview</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Applicants and interview status for your active jobs
             </CardDescription>
           </CardHeader>
@@ -257,28 +259,28 @@ const DashboardOverview = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="applicants" fill="#10b981" name="Applicants" />
-                  <Bar dataKey="pending" fill="#93c5fd" name="Pending Interviews" />
-                  <Bar dataKey="completed" fill="#6366f1" name="Completed Interviews" />
+                  <Bar dataKey="applicants" fill="hsl(var(--primary))" name="Applicants" />
+                  <Bar dataKey="pending" fill="hsl(var(--secondary))" name="Pending Interviews" />
+                  <Bar dataKey="completed" fill="hsl(var(--accent))" name="Completed Interviews" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="col-span-3">
+        <Card className="col-span-3 shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader>
-            <CardTitle>Recent Jobs</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-foreground">Recent Jobs</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Your most recently posted jobs
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {mockJobs.slice(0, 3).map((job) => (
-                <div key={job.id} className="flex justify-between items-center">
+                <div key={job.id} className="flex justify-between items-center p-2 rounded-md hover:bg-primary/5 transition-colors">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">{job.title}</p>
+                    <p className="text-sm font-medium leading-none text-foreground">{job.title}</p>
                     <p className="text-sm text-muted-foreground">
                       {job.applicantCount} applicants
                     </p>
@@ -286,6 +288,7 @@ const DashboardOverview = () => {
                   <Button
                     variant="ghost"
                     onClick={() => navigate(`/dashboard/jobs/${job.id}`)}
+                    className="hover:bg-primary/5 transition-colors duration-300"
                   >
                     View
                   </Button>
@@ -294,7 +297,7 @@ const DashboardOverview = () => {
               
               <Button 
                 variant="outline" 
-                className="w-full mt-4"
+                className="w-full mt-4 hover:bg-primary/5 transition-colors duration-300"
                 onClick={() => navigate('/dashboard/jobs')}
               >
                 View All Jobs

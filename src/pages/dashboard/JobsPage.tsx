@@ -80,13 +80,13 @@ const JobsPage: React.FC = () => {
   const getStatusColor = (status: Job['status']) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-primary/10 text-primary border-primary/20';
       case 'closed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-muted text-muted-foreground border-muted/50';
       case 'draft':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-accent/20 text-accent-foreground border-accent/30';
       default:
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-secondary text-secondary-foreground border-secondary/50';
     }
   };
 
@@ -97,10 +97,10 @@ const JobsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Job Postings</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Job Postings</h1>
           <p className="text-muted-foreground mt-2">
             Manage your active job postings and create new ones.
           </p>
@@ -108,58 +108,60 @@ const JobsPage: React.FC = () => {
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-interviewai-green hover:bg-interviewai-green/90">
+            <Button>
               <FileText className="mr-2 h-4 w-4" />
               Post New Job
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[525px]">
             <DialogHeader>
-              <DialogTitle>Create New Job Posting</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-foreground">Create New Job Posting</DialogTitle>
+              <DialogDescription className="text-muted-foreground">
                 Enter the job details below to create a new job posting.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="job-title">Job Title</Label>
+                <Label htmlFor="job-title" className="text-foreground">Job Title</Label>
                 <Input 
                   id="job-title" 
                   placeholder="e.g. Frontend Developer"
                   value={newJob.title}
                   onChange={(e) => setNewJob({...newJob, title: e.target.value})}
+                  className="border-border focus-visible:ring-primary"
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="job-description">Job Description</Label>
+                <Label htmlFor="job-description" className="text-foreground">Job Description</Label>
                 <Textarea 
                   id="job-description" 
                   placeholder="Describe the job responsibilities and requirements..."
-                  className="min-h-[100px]"
+                  className="min-h-[100px] border-border focus-visible:ring-primary"
                   value={newJob.description}
                   onChange={(e) => setNewJob({...newJob, description: e.target.value})}
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="csv-upload">Upload CSV with Candidates (Optional)</Label>
+                <Label htmlFor="csv-upload" className="text-foreground">Upload CSV with Candidates (Optional)</Label>
                 <Input 
                   id="csv-upload" 
                   type="file" 
                   accept=".csv"
                   onChange={handleFileChange}
+                  className="border-border"
                 />
                 <p className="text-sm text-muted-foreground">
                   {csvFile ? `Selected file: ${csvFile.name}` : 'No file selected'}
                 </p>
               </div>
               <div className="grid gap-2">
-                <Label>Job Deadline</Label>
+                <Label className="text-foreground">Job Deadline</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
                       className={cn(
-                        "w-full justify-start text-left font-normal",
+                        "w-full justify-start text-left font-normal border-border hover:bg-primary/5",
                         !date && "text-muted-foreground"
                       )}
                     >
@@ -174,20 +176,17 @@ const JobsPage: React.FC = () => {
                       onSelect={setDate}
                       initialFocus
                       disabled={(date) => date < new Date()}
-                      className="p-3 pointer-events-auto"
+                      className="p-3 pointer-events-auto border-border"
                     />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="hover:bg-primary/5">
                 Cancel
               </Button>
-              <Button 
-                className="bg-interviewai-green hover:bg-interviewai-green/90"
-                onClick={handleCreateJob}
-              >
+              <Button onClick={handleCreateJob}>
                 Create Job
               </Button>
             </DialogFooter>
@@ -199,40 +198,40 @@ const JobsPage: React.FC = () => {
         {jobs.map((job) => (
           <Card 
             key={job.id} 
-            className="cursor-pointer hover:shadow-md transition-shadow"
+            className="cursor-pointer hover:shadow-md transition-all duration-300 border-border"
             onClick={() => handleJobClick(job.id)}
           >
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{job.title}</CardTitle>
-                <Badge className={cn("ml-2", getStatusColor(job.status))}>
+                <CardTitle className="text-lg text-foreground">{job.title}</CardTitle>
+                <Badge className={cn("ml-2 border", getStatusColor(job.status))}>
                   {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
                 </Badge>
               </div>
-              <CardDescription className="line-clamp-2">
+              <CardDescription className="line-clamp-2 text-muted-foreground">
                 {job.description}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                <div className="flex items-center text-sm text-gray-600">
-                  <CalendarIcon className="h-4 w-4 mr-1" />
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <CalendarIcon className="h-4 w-4 mr-1 text-primary" />
                   <span>Deadline: {format(new Date(job.deadline), 'MMM d, yyyy')}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Users className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Users className="h-4 w-4 mr-1 text-primary" />
                     <span>{job.applicantCount} Applicants</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Briefcase className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Briefcase className="h-4 w-4 mr-1 text-primary" />
                     <span>{job.pendingInterviewsCount} Pending</span>
                   </div>
                   
-                  <div className="flex items-center text-sm text-gray-600">
-                    <CheckCheck className="h-4 w-4 mr-1" />
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <CheckCheck className="h-4 w-4 mr-1 text-primary" />
                     <span>{job.completedInterviewsCount} Completed</span>
                   </div>
                 </div>

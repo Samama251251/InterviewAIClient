@@ -33,42 +33,45 @@ const CandidatesPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Candidates</h1>
         <p className="text-muted-foreground mt-2">
           Manage and view all candidates across your job postings.
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Candidates</CardTitle>
-          <CardDescription>
+      <Card className="shadow-md border-border">
+        <CardHeader className="bg-muted/30">
+          <CardTitle className="text-xl text-foreground">All Candidates</CardTitle>
+          <CardDescription className="text-muted-foreground">
             A list of all candidates who have applied to your job postings.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-background">
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Total Interviews</TableHead>
-                <TableHead>Completed</TableHead>
-                <TableHead>Pending</TableHead>
+                <TableHead className="font-medium">Name</TableHead>
+                <TableHead className="font-medium">Email</TableHead>
+                <TableHead className="font-medium">Total Interviews</TableHead>
+                <TableHead className="font-medium">Completed</TableHead>
+                <TableHead className="font-medium">Pending</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {uniqueCandidates.map((candidate) => (
-                <TableRow key={candidate.email}>
+                <TableRow 
+                  key={candidate.email} 
+                  className="transition-colors hover:bg-primary/5"
+                >
                   <TableCell className="font-medium">{candidate.name}</TableCell>
                   <TableCell>{candidate.email}</TableCell>
-                  <TableCell>{candidate.interviews.length}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">{candidate.interviews.length}</TableCell>
+                  <TableCell className="text-center">
                     {candidate.interviews.filter(i => i.status === 'completed').length}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="text-center">
                     {candidate.interviews.filter(i => i.status === 'pending').length}
                   </TableCell>
                 </TableRow>

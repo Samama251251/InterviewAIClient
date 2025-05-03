@@ -1,7 +1,7 @@
 import React from 'react';
-import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight } from 'lucide-react';
+import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight, Briefcase, UserRound, SwitchCamera } from 'lucide-react';
 import { UserAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 interface NavbarProps {
@@ -14,10 +14,27 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, sidebarOpen }) => {
   const { session, signOut } = UserAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await signOut();
     navigate('/login');
+  };
+
+  // Determine current mode based on URL path
+  const isEmployeeMode = location.pathname.startsWith('/employee');
+  
+  // Handle mode switch
+  const handleModeSwitch = () => {
+    // Get current path without the prefix
+    const currentPath = location.pathname.replace(/^\/employee|\/candidate/, '');
+    
+    // Navigate to the other mode with the same path
+    if (isEmployeeMode) {
+      navigate(`/candidate${currentPath}`);
+    } else {
+      navigate(`/employee${currentPath}`);
+    }
   };
 
   // Get user initials for avatar fallback
@@ -60,6 +77,28 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
         </div>
         
         <div className="navbar-end space-x-2">
+          {/* Mode switch button */}
+          <motion.button
+            onClick={handleModeSwitch}
+            className="btn btn-sm btn-outline border-primary text-primary hover:bg-primary hover:text-primary-content gap-2"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isEmployeeMode ? (
+              <>
+                <UserRound className="h-4 w-4" />
+                <span className="hidden sm:inline">Switch to Candidate</span>
+                <span className="inline sm:hidden">Candidate</span>
+              </>
+            ) : (
+              <>
+                <Briefcase className="h-4 w-4" />
+                <span className="hidden sm:inline">Switch to Employee</span>
+                <span className="inline sm:hidden">Employee</span>
+              </>
+            )}
+          </motion.button>
+          
           {/* Theme toggle button */}
           {toggleTheme && (
             <motion.button 
@@ -123,7 +162,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
                         />
                       </div>
                     ) : (
-                      <div className="bg-primary text-primary-content rounded-full w-12 flex items-center justify-center ring-2 ring-secondary ring-opacity-20 shadow-md border-2 border-white">
+                      <div className="bg-primary text-primary-content rounded-full w-12 flex items-center justify-center ring-2 ring-primary ring-opacity-20 shadow-md border-2 border-white">
                         <span className="text-2xl font-bold tracking-wide select-none">
                           {getInitials()}
                         </span>
@@ -139,7 +178,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
               <li>
                 <motion.a 
                   className="flex items-center gap-2 px-2 py-2 hover:bg-base-200"
-                  onClick={() => navigate('/employee/profile')}
+                  onClick={() => navigate(`/${isEmployeeMode ? 'employee' : 'candidate'}/profile`)}
                   whileHover={{ x: 2 }}
                 >
                   <UserIcon className="h-4 w-4 text-primary" />
@@ -150,7 +189,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
               <li>
                 <motion.a 
                   className="flex items-center gap-2 px-2 py-2 hover:bg-base-200" 
-                  onClick={() => navigate('/employee/settings')}
+                  onClick={() => navigate(`/${isEmployeeMode ? 'employee' : 'candidate'}/settings`)}
                   whileHover={{ x: 2 }}
                 >
                   <Settings className="h-4 w-4 text-primary" />

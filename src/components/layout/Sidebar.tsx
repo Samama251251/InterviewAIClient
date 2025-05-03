@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft, Menu } from 'lucide-react';
+import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft, Menu, Calendar, UserRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserAuth } from '@/contexts/AuthContext';
 
@@ -13,6 +13,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { signOut } = UserAuth();
+
+  // Determine current mode based on URL path
+  const isEmployeeMode = location.pathname.startsWith('/employee');
 
   const handleLogout = async () => {
     await signOut();
@@ -63,18 +66,29 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
 
   // Check if a route is active
   const isActive = (path: string) => {
-    if (path === '/employee' && location.pathname === '/employee') {
+    if ((path === '/employee' && location.pathname === '/employee') || 
+        (path === '/candidate' && location.pathname === '/candidate')) {
       return true;
     }
-    return location.pathname.startsWith(path) && path !== '/employee';
+    return location.pathname.startsWith(path) && (path !== '/employee' && path !== '/candidate');
   };
 
-  const menuItems = [
+  // Define menu items based on mode
+  const employeeMenuItems = [
     { path: '/employee', icon: <Home size={18} />, label: 'Overview', exact: true },
     { path: '/employee/jobs', icon: <Briefcase size={18} />, label: 'Job Postings' },
     { path: '/employee/candidates', icon: <Users size={18} />, label: 'Candidates' },
     { path: '/employee/settings', icon: <Settings size={18} />, label: 'Settings' }
   ];
+
+  const candidateMenuItems = [
+    { path: '/candidate', icon: <Home size={18} />, label: 'Overview', exact: true },
+    { path: '/candidate/interviews', icon: <Calendar size={18} />, label: 'Interviews' },
+    { path: '/candidate/settings', icon: <Settings size={18} />, label: 'Settings' }
+  ];
+
+  // Select the appropriate menu items based on mode
+  const menuItems = isEmployeeMode ? employeeMenuItems : candidateMenuItems;
 
   return (
     <>

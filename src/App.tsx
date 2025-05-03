@@ -57,8 +57,8 @@ function App() {
             <Route path="jobs" element={<JobsPage />} />
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
             <Route path="candidates" element={<CandidatesPage />} />
-            <Route path="settings" element={<SettingsPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
           
           <Route 
@@ -70,6 +70,7 @@ function App() {
             }
           >
             <Route index element={<IntervieweeDashboard />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

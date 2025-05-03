@@ -15,8 +15,6 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    
-
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,
@@ -24,11 +22,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src"]

@@ -1,0 +1,181 @@
+import React from 'react';
+import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight } from 'lucide-react';
+import { UserAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+interface NavbarProps {
+  onToggleSidebar: () => void;
+  theme?: string;
+  toggleTheme?: () => void;
+  sidebarOpen?: boolean;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, sidebarOpen }) => {
+  const { session, signOut } = UserAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  // Get user initials for avatar fallback
+  const userEmail = session?.user?.email || '';
+  const userName = session?.user?.name || "Unknown Name";
+  
+  const getInitials = () => {
+    if (!userName) return 'U';
+    if (userName.includes('@')) {
+      return userName.split('@')[0].substring(0, 2).toUpperCase();
+    }
+    return userName.split(' ').map((n: string) => n[0]).join('').toUpperCase().substring(0, 2);
+  };
+
+  return (
+    <motion.header 
+      className="border-b border-base-300 bg-base-100 shadow-sm"
+      initial={{ y: -20, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="navbar px-4 md:px-6 h-16">
+        <div className="navbar-start">
+          {/* Show hamburger menu on all screen sizes when sidebar is closed */}
+          {!sidebarOpen && (
+            <motion.button 
+              onClick={onToggleSidebar}
+              className="btn btn-sm btn-ghost btn-circle mr-2 hover:bg-primary/10"
+              whileTap={{ scale: 0.9 }}
+              title="Open sidebar"
+            >
+              <Menu className="h-5 w-5" />
+            </motion.button>
+          )}
+        
+        </div>
+        
+        <div className="navbar-center">
+          {/* Empty center section for balance */}
+        </div>
+        
+        <div className="navbar-end space-x-2">
+          {/* Theme toggle button */}
+          {toggleTheme && (
+            <motion.button 
+              onClick={toggleTheme} 
+              className="btn btn-ghost btn-circle"
+              whileTap={{ scale: 0.9 }}
+              title={theme === 'lemonade' ? 'Switch to dark mode' : 'Switch to light mode'}
+            >
+              {theme === 'lemonade' 
+                ? <Moon className="h-5 w-5 text-base-content" /> 
+                : <Sun className="h-5 w-5 text-base-content" />
+              }
+            </motion.button>
+          )}
+          
+          {/* User dropdown */}
+          <div className="dropdown dropdown-end">
+            <motion.div 
+              tabIndex={0} 
+              role="button" 
+              className="btn btn-ghost px-2 py-0 rounded-btn flex items-center gap-2"
+              whileHover={{ backgroundColor: 'rgba(var(--primary-color), 0.05)' }}
+            >
+              <div className="avatar">
+                {session?.user?.image ? (
+                  <div className="w-10 h-10 rounded-full border-2 border-primary/10 ring-2 ring-primary/5">
+                    <img 
+                      src={session.user.image} 
+                      alt={getInitials()}
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-10 h-10 rounded-full border-2 border-primary/10 ring-2 ring-primary/5 bg-gradient-to-br from-primary to-primary/80 text-primary-content flex items-center justify-center">
+                    <span className="text-sm font-medium select-none text-center">
+                      {getInitials()}
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="hidden md:flex flex-col items-start">
+                <span className="text-sm font-semibold truncate max-w-[120px]">
+                  {userName}
+                </span>
+                <span className="text-xs text-base-content/60 truncate max-w-[120px]">
+                  {userEmail}
+                </span>
+              </div>
+            </motion.div>
+            
+            <ul tabIndex={0} className="menu dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-64">
+              <div className="p-3 mb-2 bg-base-200/70 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="avatar placeholder">
+                    {session?.user?.image ? (
+                      <div className="w-12 rounded-full ring-2 ring-primary ring-opacity-20">
+                        <img 
+                          src={session.user.image} 
+                          alt={getInitials()}
+                          className="object-cover" 
+                        />
+                      </div>
+                    ) : (
+                      <div className="bg-primary text-primary-content rounded-full w-12 flex items-center justify-center ring-2 ring-secondary ring-opacity-20 shadow-md border-2 border-white">
+                        <span className="text-2xl font-bold tracking-wide select-none">
+                          {getInitials()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium">{userName}</p>
+                    <p className="text-xs text-base-content/70">{userEmail}</p>
+                  </div>
+                </div>
+              </div>
+              <li>
+                <motion.a 
+                  className="flex items-center gap-2 px-2 py-2 hover:bg-base-200"
+                  onClick={() => navigate('/employee/profile')}
+                  whileHover={{ x: 2 }}
+                >
+                  <UserIcon className="h-4 w-4 text-primary" />
+                  <span>My Profile</span>
+                </motion.a>
+              </li>
+              
+              <li>
+                <motion.a 
+                  className="flex items-center gap-2 px-2 py-2 hover:bg-base-200" 
+                  onClick={() => navigate('/employee/settings')}
+                  whileHover={{ x: 2 }}
+                >
+                  <Settings className="h-4 w-4 text-primary" />
+                  <span>Settings</span>
+                </motion.a>
+              </li>
+              
+              <div className="divider my-1"></div>
+              
+              <li>
+                <motion.a 
+                  className="flex items-center gap-2 px-2 py-2 text-error hover:bg-error hover:bg-opacity-10"
+                  onClick={handleLogout}
+                  whileHover={{ x: 2 }}
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Log out</span>
+                </motion.a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </motion.header>
+  );
+};
+
+export default Navbar;

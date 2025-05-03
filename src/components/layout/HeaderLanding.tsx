@@ -38,11 +38,9 @@ export function Header({ theme, toggleTheme }: HeaderProps) {
           </ul>
         </div>
         <div className="navbar-end gap-2">
-          {/* Theme toggle button */}
           <button onClick={toggleTheme} className="btn btn-ghost btn-circle">
             {theme === 'lemonade' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
           </button>
-          {/* Login/Signup buttons */}
           <Link to="/login" className="btn btn-outline btn-primary btn-sm transition duration-150 ease-in-out hover:bg-primary hover:text-primary-content active:scale-95">
             Log In
           </Link>

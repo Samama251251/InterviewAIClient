@@ -23,7 +23,7 @@ const JobDetailPage: React.FC = () => {
         <h1 className="text-2xl font-bold mb-4">Job not found</h1>
         <button 
           className="btn btn-primary"
-          onClick={() => navigate('/dashboard/jobs')}
+          onClick={() => navigate('/employee/jobs')}
         >
           Return to Jobs List
         </button>
@@ -129,7 +129,7 @@ const JobDetailPage: React.FC = () => {
       <div>
         <button 
           className="btn btn-ghost mb-4 flex items-center gap-2"
-          onClick={() => navigate('/dashboard/jobs')} 
+          onClick={() => navigate('/employee/jobs')} 
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Jobs

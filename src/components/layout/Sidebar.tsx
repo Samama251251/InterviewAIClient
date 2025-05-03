@@ -1,8 +1,8 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft } from 'lucide-react';
-import Logo from '@/components/common/Logo';
-import { motion } from 'framer-motion';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft, Menu } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { UserAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   open: boolean;
@@ -10,91 +10,186 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { signOut } = UserAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
+
+  // Animation variants
+  const sidebarVariants = {
+    open: { 
+      x: 0, 
+      opacity: 1,
+      transition: { 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 24 
+      } 
+    },
+    closed: { 
+      x: -300, 
+      opacity: 0,
+      transition: { 
+        type: "spring", 
+        stiffness: 300, 
+        damping: 24 
+      } 
+    }
+  };
+
+  const itemVariants = {
+    open: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        delay: 0.1,
+        staggerChildren: 0.07,
+        delayChildren: 0.2
+      }
+    },
+    closed: {
+      x: -20,
+      opacity: 0,
+      transition: {
+        staggerChildren: 0.05,
+        staggerDirection: -1
+      }
+    }
+  };
+
+  // Check if a route is active
+  const isActive = (path: string) => {
+    if (path === '/employee' && location.pathname === '/employee') {
+      return true;
+    }
+    return location.pathname.startsWith(path) && path !== '/employee';
+  };
+
+  const menuItems = [
+    { path: '/employee', icon: <Home size={18} />, label: 'Overview', exact: true },
+    { path: '/employee/jobs', icon: <Briefcase size={18} />, label: 'Job Postings' },
+    { path: '/employee/candidates', icon: <Users size={18} />, label: 'Candidates' },
+    { path: '/employee/settings', icon: <Settings size={18} />, label: 'Settings' }
+  ];
+
   return (
-    <div className="drawer-side z-20">
-      <label htmlFor="drawer-toggle" aria-label="close sidebar" className="drawer-overlay"></label>
-      <motion.aside 
-        className="bg-base-200 w-64 h-full"
-        initial={{ x: -20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="px-4 py-5 border-b border-base-300 flex items-center justify-between">
-          <div className="flex items-center">
-            <Logo />
-          </div>
-          <button 
-            onClick={() => setOpen(!open)}
-            className="btn btn-ghost btn-circle lg:hidden"
+    <>
+      {/* Overlay - only on mobile */}
+      {open && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden" 
+          onClick={() => setOpen(false)}
+        ></div>
+      )}
+
+      {/* Sidebar */}
+      <AnimatePresence>
+        {open && (
+          <motion.aside 
+            className="fixed left-0 top-0 bottom-0 w-64 bg-base-200 shadow-xl z-20 flex flex-col"
+            initial="closed"
+            animate="open"
+            exit="closed"
+            variants={sidebarVariants}
           >
-            <ChevronLeft className={`h-5 w-5 transition-transform duration-200 ${open ? '' : 'rotate-180'}`} />
-          </button>
+            {/* Sidebar Header with Logo and Toggle Button */}
+            <div className="px-4 py-4 border-b border-base-300 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-bold">Interview<span className="text-primary">AI</span></span>
+              </div>
+              
+              {/* Toggle Button */}
+              <motion.button 
+                onClick={() => setOpen(false)}
+                className="btn btn-sm btn-ghost btn-circle hover:bg-base-300"
+                whileTap={{ scale: 0.9 }}
+                title="Close sidebar"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </motion.button>
+            </div>
+            
+            {/* Sidebar Content */}
+            <div className="flex-1 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-base-300">
+              <div className="px-3 py-4">
+                <motion.ul 
+                  className="space-y-1"
+                  variants={itemVariants}
+                >
+                  {menuItems.map((item, index) => (
+                    <motion.li 
+                      key={item.path}
+                      variants={itemVariants}
+                      className="rounded-md overflow-hidden"
+                    >
+                      <NavLink 
+                        to={item.path}
+                        end={item.exact}
+                        className={({ isActive }) => 
+                          `flex items-center px-3 py-2.5 transition-all duration-200 ${
+                            isActive 
+                              ? "bg-primary text-primary-content font-medium" 
+                              : "text-base-content hover:bg-primary/10"
+                          }`
+                        }
+                      >
+                        <motion.div 
+                          className="w-5 h-5 flex items-center justify-center flex-shrink-0"
+                          whileHover={{ rotate: 5 }}
+                        >
+                          {item.icon}
+                        </motion.div>
+                        <span className="ml-3">{item.label}</span>
+                        
+                        {/* Active indicator */}
+                        {isActive(item.path) && (
+                          <motion.div 
+                            className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-content"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                          />
+                        )}
+                      </NavLink>
+                    </motion.li>
+                  ))}
+                </motion.ul>
+              </div>
+            </div>
+            
+            {/* Footer */}
+            <div className="p-4 border-t border-base-300">
+              <motion.button 
+                onClick={handleLogout}
+                className="btn btn-sm w-full flex items-center justify-start gap-2 text-error hover:bg-error/10"
+                whileHover={{ x: 3 }}
+              >
+                <LogOut size={18} />
+                <span>Log Out</span>
+              </motion.button>
+            </div>
+          </motion.aside>
+        )}
+      </AnimatePresence>
+      
+      {/* Fixed toggle button for mobile */}
+      {!open && (
+        <div className="fixed bottom-4 right-4 lg:hidden z-30">
+          <motion.button 
+            onClick={() => setOpen(true)} 
+            className="btn btn-primary btn-circle shadow-lg"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Menu size={20} />
+          </motion.button>
         </div>
-        
-        <div className="p-4">
-          <ul className="menu p-0 [&_li>*]:rounded-lg">
-            <li className="menu-title">
-              <span>Dashboard</span>
-            </li>
-            
-            <li>
-              <NavLink 
-                to="/dashboard" 
-                className={({ isActive }) => 
-                  isActive ? "active bg-primary text-primary-content" : ""
-                }
-              >
-                <Home size={20} />
-                <span>Overview</span>
-              </NavLink>
-            </li>
-            
-            <li>
-              <NavLink
-                to="/dashboard/jobs"
-                className={({ isActive }) => 
-                  isActive ? "active bg-primary text-primary-content" : ""
-                }
-              >
-                <Briefcase size={20} />
-                <span>Job Postings</span>
-              </NavLink>
-            </li>
-            
-            <li>
-              <NavLink
-                to="/dashboard/candidates"
-                className={({ isActive }) => 
-                  isActive ? "active bg-primary text-primary-content" : ""
-                }
-              >
-                <Users size={20} />
-                <span>Candidates</span>
-              </NavLink>
-            </li>
-            
-            <li>
-              <NavLink
-                to="/dashboard/settings"
-                className={({ isActive }) => 
-                  isActive ? "active bg-primary text-primary-content" : ""
-                }
-              >
-                <Settings size={20} />
-                <span>Settings</span>
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-        
-        <div className="absolute bottom-0 w-full p-4 border-t border-base-300">
-          <button className="btn btn-ghost w-full flex items-center gap-2 text-error hover:bg-error hover:bg-opacity-10">
-            <LogOut size={20} />
-            <span>Log Out</span>
-          </button>
-        </div>
-      </motion.aside>
-    </div>
+      )}
+    </>
   );
 };
 

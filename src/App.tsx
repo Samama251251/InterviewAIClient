@@ -5,12 +5,12 @@ import { Login } from "@/pages/Login"
 import { Signup } from "@/pages/Signup"
 import DashboardLayout from "@/components/layout/DashbordLayout"
 import MainLayout from "@/components/layout/MainLayout"
-import DashboardOverview from "@/pages/dashboard/DashboardOverview"
-import JobsPage from "@/pages/dashboard/JobsPage"
-import JobDetailPage from "@/pages/dashboard/JobDetailPage"
-import CandidatesPage from "@/pages/dashboard/CandidatesPage"
-import SettingsPage from "@/pages/dashboard/SettingsPage"
-import ProfilePage from "@/pages/dashboard/ProfilePage"
+import DashboardOverview from "@/pages/DashboardOverview"
+import JobsPage from "@/pages/JobsPage"
+import JobDetailPage from "@/pages/JobDetailPage"
+import CandidatesPage from "@/pages/CandidatesPage"
+import SettingsPage from "@/pages/SettingsPage"
+import ProfilePage from "@/pages/ProfilePage"
 import IntervieweeDashboard from "@/pages/IntervieweDashboard"
 import PrivateRoute from "@/components/common/PrivateRoute"
 import { useState, useEffect } from 'react';
@@ -37,21 +37,19 @@ function App() {
     <div className="min-h-screen bg-base-100">
       <Router>
         <Routes>
-          {/* Public routes with Header and Footer */}
           <Route element={<MainLayout theme={theme} toggleTheme={toggleTheme} />}>
             <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            {/* NotFound should also use the MainLayout */}
-            <Route path="*" element={<NotFound />} />
           </Route>
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
           
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 
-            path="/dashboard" 
+            path="/employee" 
             element={
               <PrivateRoute>
-                <DashboardLayout />
+                <DashboardLayout theme={theme} toggleTheme={toggleTheme} />
               </PrivateRoute>
             }
           >
@@ -63,17 +61,18 @@ function App() {
             <Route path="profile" element={<ProfilePage />} />
           </Route>
           
-          {/* Interviewee dashboard with same layout as company dashboard */}
           <Route 
-            path="/int" 
+            path="/candidate" 
             element={
               <PrivateRoute>
-                <DashboardLayout />
+                <DashboardLayout theme={theme} toggleTheme={toggleTheme} />
               </PrivateRoute>
             }
           >
             <Route index element={<IntervieweeDashboard />} />
           </Route>
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </div>

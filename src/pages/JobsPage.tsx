@@ -45,7 +45,7 @@ const JobsPage: React.FC = () => {
   });
 
   const handleJobClick = (jobId: string) => {
-    navigate(`/dashboard/jobs/${jobId}`);
+    navigate(`/employee/jobs/${jobId}`);
   };
 
   const handleCreateJob = () => {

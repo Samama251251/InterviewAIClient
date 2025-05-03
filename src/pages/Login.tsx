@@ -4,7 +4,6 @@ import { Github, Mail, ArrowRight, MailCheck, Loader2, AlertCircle } from "lucid
 import { UserAuth } from "@/contexts/AuthContext";
 import { AuthCard } from "@/components/Auth/AuthCard";
 import { SocialButton } from "@/components/Auth/SocialButton";
-import { AuthDivider } from "@/components/Auth/AuthDivider";
 import { motion } from "framer-motion";
 
 export function Login() {

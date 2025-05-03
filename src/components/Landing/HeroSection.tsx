@@ -10,7 +10,7 @@ export function HeroSection() {
           animate={bounceAnimation}
           className="badge badge-primary py-3 px-4 font-semibold"
         >
-          🚀 AI-Powered Interviews
+           AI-Powered Interviews
         </motion.div>
         
         <motion.h1 

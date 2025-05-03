@@ -3,7 +3,7 @@ import { Landing } from "@/pages/Landing"
 
 function App() {
   return (
-    <div className="min-h-screen bg-base-100" data-theme="emerald">
+    <div className="min-h-screen bg-base-100" data-theme="lemonade">
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />

@@ -1,79 +1,193 @@
-import { motion } from 'framer-motion';
+import { motion } from "framer-motion";
+import { useState } from "react";
+import Button from "./Button";
 
 interface EditorToolbarProps {
   onLanguageChange: (language: string) => void;
   onThemeChange: () => void;
-  onSubmit: () => void;
+  onMinimapToggle: () => void;
+  onAutoSaveToggle: () => void;
   currentLanguage: string;
-  theme: string;
+  theme: "light" | "dark";
+  showMinimap: boolean;
+  autoSave: boolean;
+  lastSaved?: Date;
 }
+
+const languages = [
+  {
+    id: "javascript",
+    name: "JavaScript",
+    icon: "📜",
+  },
+  {
+    id: "typescript",
+    name: "TypeScript",
+    icon: "💎",
+  },
+  {
+    id: "python",
+    name: "Python",
+    icon: "🐍",
+  },
+  {
+    id: "java",
+    name: "Java",
+    icon: "☕",
+  },
+];
 
 const EditorToolbar = ({
   onLanguageChange,
   onThemeChange,
-  onSubmit,
+  onMinimapToggle,
+  onAutoSaveToggle,
   currentLanguage,
   theme,
+  showMinimap,
+  autoSave,
+  lastSaved,
 }: EditorToolbarProps) => {
-  const languages = [
-    { id: 'javascript', name: 'JavaScript' },
-    { id: 'typescript', name: 'TypeScript' },
-    { id: 'python', name: 'Python' },
-    { id: 'java', name: 'Java' },
-  ];
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-800 to-gray-900 border-b border-gray-700"
-    >
-      <div className="flex items-center space-x-6">
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          className="relative inline-block"
-        >
+    <div className="flex items-center gap-4">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        className="relative inline-block"
+      >
+        <div className="relative inline-flex items-center">
           <select
             value={currentLanguage}
             onChange={(e) => onLanguageChange(e.target.value)}
-            className="appearance-none bg-gray-700 text-gray-100 px-4 py-2 pr-8 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            className="appearance-none bg-muted text-foreground pl-10 pr-10 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 font-medium text-sm"
           >
             {languages.map((lang) => (
               <option key={lang.id} value={lang.id}>
-                {lang.name}
+                {lang.icon} {lang.name}
               </option>
             ))}
           </select>
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-            <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          <span className="absolute left-3 pointer-events-none">
+            {languages.find((l) => l.id === currentLanguage)?.icon}
+          </span>
+          <span className="absolute right-3 pointer-events-none">
+            <svg
+              className="w-5 h-5 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
-          </div>
-        </motion.div>
+          </span>
+        </div>
+      </motion.div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onSubmit}
-          className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-2 rounded-lg font-medium shadow-lg hover:shadow-blue-500/25 transition-all duration-200 flex items-center space-x-2"
+      <div className="h-6 w-px bg-border"></div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onThemeChange}
+          title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Theme`}
         >
-          <span>Submit</span>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          <motion.div
+            initial={false}
+            animate={{ rotate: isHovered ? 180 : 0 }}
+            onHoverStart={() => setIsHovered(true)}
+            onHoverEnd={() => setIsHovered(false)}
+          >
+            {theme === "dark" ? (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
+              </svg>
+            ) : (
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                />
+              </svg>
+            )}
+          </motion.div>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMinimapToggle}
+          title="Toggle Minimap"
+          className={showMinimap ? "text-primary bg-primary/10" : ""}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"
+            />
           </svg>
-        </motion.button>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onAutoSaveToggle}
+          title="Toggle Auto-save"
+          className={autoSave ? "text-primary bg-primary/10" : ""}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"
+            />
+          </svg>
+        </Button>
       </div>
 
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={onThemeChange}
-        className="p-2.5 rounded-lg bg-gray-700 text-gray-100 hover:bg-gray-600 transition-colors duration-200"
-      >
-        {theme === 'dark' ? '🌞' : '🌙'}
-      </motion.button>
-    </motion.div>
+      {lastSaved && (
+        <div className="text-xs text-muted-foreground">
+          Last saved: {lastSaved.toLocaleTimeString()}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default EditorToolbar; 
+export default EditorToolbar;

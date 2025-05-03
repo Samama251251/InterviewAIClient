@@ -1,0 +1,98 @@
+@layer base {
+  :root {
+    /* Light theme */
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --popover: #ffffff;
+    --popover-foreground: #0f172a;
+    --primary: #2563eb;
+    --primary-foreground: #ffffff;
+    --primary-50: #eff6ff;
+    --primary-100: #dbeafe;
+    --primary-200: #bfdbfe;
+    --primary-300: #93c5fd;
+    --primary-400: #60a5fa;
+    --primary-500: #3b82f6;
+    --primary-600: #2563eb;
+    --primary-700: #1d4ed8;
+    --primary-800: #1e40af;
+    --primary-900: #1e3a8a;
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    --accent: #f8fafc;
+    --accent-foreground: #0f172a;
+    --border: #e2e8f0;
+    --input: #e2e8f0;
+    --ring: #94a3b8;
+  }
+
+  [data-theme="dark"] {
+    /* Dark theme */
+    --background: #0f172a;
+    --foreground: #f8fafc;
+    --card: #1e293b;
+    --card-foreground: #f8fafc;
+    --popover: #1e293b;
+    --popover-foreground: #f8fafc;
+    --primary: #3b82f6;
+    --primary-foreground: #f8fafc;
+    --primary-50: #1e3a8a;
+    --primary-100: #1e40af;
+    --primary-200: #1d4ed8;
+    --primary-300: #2563eb;
+    --primary-400: #3b82f6;
+    --primary-500: #60a5fa;
+    --primary-600: #93c5fd;
+    --primary-700: #bfdbfe;
+    --primary-800: #dbeafe;
+    --primary-900: #eff6ff;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --accent: #1e293b;
+    --accent-foreground: #f8fafc;
+    --border: #334155;
+    --input: #334155;
+    --ring: #1e293b;
+  }
+}
+
+/* Monaco Editor Theme Overrides */
+.monaco-editor {
+  --vscode-editor-background: var(--background);
+  --vscode-editor-foreground: var(--foreground);
+  --vscode-editorLineNumber-foreground: var(--muted-foreground);
+  --vscode-editorLineNumber-activeForeground: var(--foreground);
+  --vscode-editorIndentGuide-background: var(--border);
+  --vscode-editorIndentGuide-activeBackground: var(--muted-foreground);
+  --vscode-editor-selectionBackground: var(--primary-100);
+  --vscode-editor-inactiveSelectionBackground: var(--muted);
+  --vscode-editor-selectionHighlightBackground: var(--primary-50);
+  --vscode-editor-findMatchBackground: var(--primary-200);
+  --vscode-editor-findMatchHighlightBackground: var(--primary-100);
+  --vscode-editorCursor-foreground: var(--primary);
+  --vscode-editorWhitespace-foreground: var(--muted-foreground);
+  --vscode-editorLineNumber-foreground: var(--muted-foreground);
+  --vscode-editorLineNumber-activeForeground: var(--foreground);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}

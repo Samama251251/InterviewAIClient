@@ -31,7 +31,6 @@ export function Landing() {
 
   return (
     <div className="min-h-screen font-sans">
-      {/* Navbar - Sticky with gradient */}
       <div className="navbar bg-neutral text-neutral-content sticky top-0 z-50 shadow-lg">
         <div className="navbar container mx-auto">
           <div className="navbar-start">

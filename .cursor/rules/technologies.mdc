@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You should always use these sets of technologies:
+
+-> Framer Motion (For the animations)
+-> React Query
+-> React Hook Form + Zod
+-> Daisy UI
+-> React Router
+-> Lucide React

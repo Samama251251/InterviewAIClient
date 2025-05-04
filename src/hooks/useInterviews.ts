@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
-import { Interview, CreateInterviewInput, UpdateInterviewInput } from '../types/interview';
+import { Interview, CreateInterviewInput, UpdateInterviewInput, InterviewsResponse, InterviewResponse, InterviewDeleteResponse } from '../types/interview';
 import { useToast } from './useToast';
 
 // Query keys
@@ -14,9 +14,9 @@ export const useInterviews = () => {
   // Get all interviews
   const getInterviews = useQuery({
     queryKey: [INTERVIEWS],
-    queryFn: async () => {
+    queryFn: async (): Promise<Interview[]> => {
       try {
-        const response = await api.get('/interviews');
+        const response = await api.get<InterviewsResponse>('/interviews');
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch interviews');
@@ -28,9 +28,9 @@ export const useInterviews = () => {
   // Get interview by ID
   const getInterviewById = (id: string) => useQuery({
     queryKey: [INTERVIEWS, id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Interview> => {
       try {
-        const response = await api.get(`/interviews/${id}`);
+        const response = await api.get<InterviewResponse>(`/interviews/${id}`);
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch interview details');
@@ -42,8 +42,8 @@ export const useInterviews = () => {
 
   // Create a new interview
   const createInterview = useMutation({
-    mutationFn: async (data: CreateInterviewInput) => {
-      const response = await api.post('/interviews', data);
+    mutationFn: async (data: CreateInterviewInput): Promise<Interview> => {
+      const response = await api.post<InterviewResponse>('/interviews', data);
       return response.data.data;
     },
     onSuccess: () => {
@@ -57,8 +57,8 @@ export const useInterviews = () => {
 
   // Update an interview
   const updateInterview = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateInterviewInput }) => {
-      const response = await api.put(`/interviews/${id}`, data);
+    mutationFn: async ({ id, data }: { id: string; data: UpdateInterviewInput }): Promise<Interview> => {
+      const response = await api.put<InterviewResponse>(`/interviews/${id}`, data);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -73,8 +73,8 @@ export const useInterviews = () => {
 
   // Delete an interview
   const deleteInterview = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await api.delete(`/interviews/${id}`);
+    mutationFn: async (id: string): Promise<{ status: string; message: string }> => {
+      const response = await api.delete<InterviewDeleteResponse>(`/interviews/${id}`);
       return response.data;
     },
     onSuccess: () => {

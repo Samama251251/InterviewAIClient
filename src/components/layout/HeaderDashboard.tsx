@@ -1,8 +1,9 @@
 import React from 'react';
-import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight, Briefcase, UserRound, SwitchCamera } from 'lucide-react';
+import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight, Briefcase, UserRound, SwitchCamera, Building2, ChevronDown } from 'lucide-react';
 import { UserAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useCompanyContext } from '@/contexts/CompanyContext';
 
 interface NavbarProps {
   onToggleSidebar: () => void;
@@ -15,15 +16,17 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
   const { session, signOut } = UserAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isEmployeeMode = location.pathname.startsWith('/employee');
+  
+  // Get company context if in employee mode
+  const companyContext = isEmployeeMode ? useCompanyContext() : null;
+  const { companies = [], selectedCompany, setSelectedCompany, isLoading } = companyContext || {};
 
   const handleLogout = async () => {
     await signOut();
     navigate('/login');
   };
 
-  // Determine current mode based on URL path
-  const isEmployeeMode = location.pathname.startsWith('/employee');
-  
   // Handle mode switch
   const handleModeSwitch = () => {
     // Get current path without the prefix
@@ -70,6 +73,70 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
             </motion.button>
           )}
         
+          {/* Company selector for employee mode */}
+          {isEmployeeMode && selectedCompany && (
+            <div className="dropdown dropdown-bottom">
+              <div 
+                tabIndex={0} 
+                role="button" 
+                className="btn btn-ghost px-3 py-1 flex items-center gap-2"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Building2 className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-semibold truncate max-w-[150px]">
+                    {selectedCompany.name}
+                  </span>
+                  <span className="text-xs text-base-content/60 truncate max-w-[150px]">
+                    {selectedCompany.role === 'owner' ? 'Owner' : 'Employee'}
+                  </span>
+                </div>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+              
+              <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-64 mt-1">
+                <div className="p-2 text-xs text-base-content/70 border-b border-base-300 mb-1">
+                  Select Company
+                </div>
+                {companies.map(company => (
+                  <li key={company._id}>
+                    <button 
+                      className={`flex items-center gap-2 py-2 px-3 ${selectedCompany?._id === company._id ? 'bg-primary/10 text-primary' : ''}`}
+                      onClick={() => setSelectedCompany?.(company)}
+                    >
+                      <div className="w-6 h-6 rounded-full bg-base-200 flex items-center justify-center">
+                        <Building2 className="h-3 w-3" />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <span className="text-sm font-medium">{company.name}</span>
+                        <span className="text-xs text-base-content/60">
+                          {company.role === 'owner' ? 'Owner' : 'Employee'}
+                        </span>
+                      </div>
+                    </button>
+                  </li>
+                ))}
+                
+                {companies.length === 0 && (
+                  <li className="text-center py-2 text-sm text-base-content/70">
+                    No companies available
+                  </li>
+                )}
+                
+                <div className="divider my-1"></div>
+                
+                <li>
+                  <button
+                    className="flex items-center gap-2 text-primary"
+                    onClick={() => navigate('/employee/companies/new')}
+                  >
+                    <span>Create New Company</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
         
         <div className="navbar-center">

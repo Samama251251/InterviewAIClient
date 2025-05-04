@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
-import { Company, CreateCompanyInput, UpdateCompanyInput } from '../types/company';
+import { Company, CreateCompanyInput, UpdateCompanyInput, CompaniesResponse, CompanyResponse, CompanyDeleteResponse } from '../types/company';
 import { useToast } from './useToast';
 
 // Query keys
@@ -14,9 +14,10 @@ export const useCompanies = () => {
   // Get all companies
   const getCompanies = useQuery({
     queryKey: [COMPANIES],
-    queryFn: async () => {
+    queryFn: async (): Promise<Company[]> => {
       try {
-        const response = await api.get('/companies');
+        const response = await api.get<CompaniesResponse>('/companies');
+        console.log(response)
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch companies');
@@ -28,9 +29,9 @@ export const useCompanies = () => {
   // Get company by ID
   const getCompanyById = (id: string) => useQuery({
     queryKey: [COMPANIES, id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Company> => {
       try {
-        const response = await api.get(`/companies/${id}`);
+        const response = await api.get<CompanyResponse>(`/companies/${id}`);
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch company details');
@@ -42,8 +43,8 @@ export const useCompanies = () => {
 
   // Create a new company
   const createCompany = useMutation({
-    mutationFn: async (data: CreateCompanyInput) => {
-      const response = await api.post('/companies', data);
+    mutationFn: async (data: CreateCompanyInput): Promise<Company> => {
+      const response = await api.post<CompanyResponse>('/companies', data);
       return response.data.data;
     },
     onSuccess: () => {
@@ -57,8 +58,8 @@ export const useCompanies = () => {
 
   // Update a company
   const updateCompany = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateCompanyInput }) => {
-      const response = await api.put(`/companies/${id}`, data);
+    mutationFn: async ({ id, data }: { id: string; data: UpdateCompanyInput }): Promise<Company> => {
+      const response = await api.put<CompanyResponse>(`/companies/${id}`, data);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -73,8 +74,8 @@ export const useCompanies = () => {
 
   // Delete a company
   const deleteCompany = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await api.delete(`/companies/${id}`);
+    mutationFn: async (id: string): Promise<{ status: string; message: string }> => {
+      const response = await api.delete<CompanyDeleteResponse>(`/companies/${id}`);
       return response.data;
     },
     onSuccess: () => {

@@ -1,45 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
-import { getIntervieweeJobs, getIntervieweeInterviews } from "@/services/api/interviewee";
 import { useState } from "react";
 import { UserAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Calendar, Clock, ArrowRight, AlertCircle, Building } from "lucide-react";
-
-// Interface to match the API types
-interface Interview {
-  _id: string;
-  job_id: {
-    _id: string;
-    name: string;
-    description?: string;
-    company_id: {
-      _id: string;
-      name: string;
-    };
-  };
-  user_id: string;
-  time: string;
-  date: string;
-}
+import { useJobs } from "../hooks/useJobs";
+import { useInterviews } from "../hooks/useInterviews";
+import { Interview } from "../types/interview";
+import { Job } from "../types/job";
+import { Company } from "../types/company";
 
 function IntervieweeDashboard() {
   const [activeTab, setActiveTab] = useState("upcoming");
   const { session } = UserAuth();
   const user = session?.user;
 
+  // Use our custom hooks
+  const { getJobs } = useJobs();
+  const { getInterviews } = useInterviews();
+
   // Fetch jobs
-  const jobsQuery = useQuery({
-    queryKey: ["userJobs"],
-    queryFn: getIntervieweeJobs,
-    staleTime: 30000
-  });
+  const jobsQuery = getJobs;
 
   // Fetch interviews
-  const interviewsQuery = useQuery<Interview[]>({
-    queryKey: ["userInterviews"],
-    queryFn: getIntervieweeInterviews,
-    staleTime: 30000
-  });
+  const interviewsQuery = getInterviews;
 
   // Derived data
   const upcomingInterviews = interviewsQuery.data?.filter((interview: Interview) => 
@@ -60,6 +42,30 @@ function IntervieweeDashboard() {
       day: 'numeric', 
       year: 'numeric' 
     });
+  };
+
+  // Helper function to get job name
+  const getJobName = (jobId: string | Job): string => {
+    if (typeof jobId === 'string') {
+      const job = jobsQuery.data?.find((j: Job) => j._id === jobId);
+      return job?.name || 'Unknown Job';
+    } else {
+      return jobId.name;
+    }
+  };
+
+  // Helper function to get company name
+  const getCompanyName = (jobId: string | Job): string => {
+    if (typeof jobId === 'string') {
+      const job = jobsQuery.data?.find((j: Job) => j._id === jobId);
+      return typeof job?.company_id === 'string' 
+        ? job?.company_id || 'Unknown Company' 
+        : (job?.company_id as Company)?.name || 'Unknown Company';
+    } else {
+      return typeof jobId.company_id === 'string'
+        ? jobId.company_id
+        : (jobId.company_id as Company)?.name || 'Unknown Company';
+    }
   };
 
   if (isLoading) {
@@ -164,38 +170,43 @@ function IntervieweeDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingInterviews.map((interview: Interview) => (
-                <motion.div 
-                  key={interview._id}
-                  className="card bg-base-100 shadow-md"
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                >
-                  <div className="card-body">
-                    <h3 className="card-title">{interview.job_id.name}</h3>
-                    <div className="flex items-center text-base-content/70 mb-2">
-                      <Building size={16} className="mr-2" />
-                      <span>{interview.job_id.company_id.name}</span>
-                    </div>
-                    <div className="space-y-2 my-3">
-                      <div className="flex items-center">
-                        <Calendar size={16} className="text-primary mr-2" />
-                        <span>{formatDate(interview.date)}</span>
+              {upcomingInterviews.map((interview: Interview) => {
+                const jobName = getJobName(interview.job_id);
+                const companyName = getCompanyName(interview.job_id);
+                
+                return (
+                  <motion.div 
+                    key={interview._id}
+                    className="card bg-base-100 shadow-md"
+                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  >
+                    <div className="card-body">
+                      <h3 className="card-title">{jobName}</h3>
+                      <div className="flex items-center text-base-content/70 mb-2">
+                        <Building size={16} className="mr-2" />
+                        <span>{companyName}</span>
                       </div>
-                      <div className="flex items-center">
-                        <Clock size={16} className="text-primary mr-2" />
-                        <span>{interview.time}</span>
+                      <div className="space-y-2 my-3">
+                        <div className="flex items-center">
+                          <Calendar size={16} className="text-primary mr-2" />
+                          <span>{formatDate(interview.date)}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock size={16} className="text-primary mr-2" />
+                          <span>{interview.time}</span>
+                        </div>
+                      </div>
+                      <div className="card-actions justify-between items-center">
+                        <span className="badge badge-primary">Upcoming</span>
+                        <button className="btn btn-primary btn-sm">
+                          Prepare
+                          <ArrowRight size={16} />
+                        </button>
                       </div>
                     </div>
-                    <div className="card-actions justify-between items-center">
-                      <span className="badge badge-primary">Upcoming</span>
-                      <button className="btn btn-primary btn-sm">
-                        Prepare
-                        <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>
@@ -216,38 +227,43 @@ function IntervieweeDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pastInterviews.map((interview: Interview) => (
-                <motion.div 
-                  key={interview._id}
-                  className="card bg-base-100 shadow-md"
-                  whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                >
-                  <div className="card-body">
-                    <h3 className="card-title">{interview.job_id.name}</h3>
-                    <div className="flex items-center text-base-content/70 mb-2">
-                      <Building size={16} className="mr-2" />
-                      <span>{interview.job_id.company_id.name}</span>
-                    </div>
-                    <div className="space-y-2 my-3">
-                      <div className="flex items-center">
-                        <Calendar size={16} className="text-primary mr-2" />
-                        <span>{formatDate(interview.date)}</span>
+              {pastInterviews.map((interview: Interview) => {
+                const jobName = getJobName(interview.job_id);
+                const companyName = getCompanyName(interview.job_id);
+                
+                return (
+                  <motion.div 
+                    key={interview._id}
+                    className="card bg-base-100 shadow-md"
+                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                  >
+                    <div className="card-body">
+                      <h3 className="card-title">{jobName}</h3>
+                      <div className="flex items-center text-base-content/70 mb-2">
+                        <Building size={16} className="mr-2" />
+                        <span>{companyName}</span>
                       </div>
-                      <div className="flex items-center">
-                        <Clock size={16} className="text-primary mr-2" />
-                        <span>{interview.time}</span>
+                      <div className="space-y-2 my-3">
+                        <div className="flex items-center">
+                          <Calendar size={16} className="text-primary mr-2" />
+                          <span>{formatDate(interview.date)}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Clock size={16} className="text-primary mr-2" />
+                          <span>{interview.time}</span>
+                        </div>
+                      </div>
+                      <div className="card-actions justify-between items-center">
+                        <span className="badge badge-neutral">Completed</span>
+                        <button className="btn btn-neutral btn-sm">
+                          View Report
+                          <ArrowRight size={16} />
+                        </button>
                       </div>
                     </div>
-                    <div className="card-actions justify-between items-center">
-                      <span className="badge badge-neutral">Completed</span>
-                      <button className="btn btn-neutral btn-sm">
-                        View Report
-                        <ArrowRight size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>

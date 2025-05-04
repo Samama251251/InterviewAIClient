@@ -1,15 +1,12 @@
-export enum RoundType {
-  Coding = "Coding",
-  FrameworkSpecific = "FrameworkSpecific",
-  SystemDesign = "SystemDesign",
-  Behavioural = "Behavioural",
-  KnowledgeBased = "KnowledgeBased"
-}
+import { CompanyReference } from './employee';
+
+export type RoundType = 'Coding' | 'FrameworkSpecific' | 'SystemDesign' | 'Behavioural' | 'KnowledgeBased';
 
 export interface Round {
   type: RoundType;
   score?: number;
   remarks?: string;
+  status?: string;
 }
 
 export interface Job {
@@ -18,10 +15,10 @@ export interface Job {
   description: string;
   role: string;
   framework: string;
-  rounds: Round[];
-  deadline: string; // ISO date string
-  company_id: string;
-  relationship?: 'owner' | 'employee' | 'applicant'; // Added by the API for client-side use
+  roundTypes: RoundType[]; // API returns roundTypes array
+  deadline: string; // ISO format date string
+  company_id: string | CompanyReference;
+  relationship?: 'owner' | 'employee' | 'applicant'; // Added by API for client use
 }
 
 export interface CreateJobInput {
@@ -29,8 +26,8 @@ export interface CreateJobInput {
   description: string;
   role: string;
   framework: string;
-  rounds?: Round[];
-  deadline: string; // ISO date string
+  roundTypes: RoundType[]; // Changed from rounds to roundTypes to match API
+  deadline: string; // ISO format date string
   company_id: string;
 }
 
@@ -39,6 +36,25 @@ export interface UpdateJobInput {
   description?: string;
   role?: string;
   framework?: string;
-  rounds?: Round[];
-  deadline?: string; // ISO date string
+  roundTypes?: RoundType[]; // Changed from rounds to roundTypes to match API
+  deadline?: string; // ISO format date string
+}
+
+export interface JobsGroupedResponse {
+  status: string;
+  data: {
+    appliedJobs: Job[];
+    ownedCompanyJobs: Job[];
+    employeeCompanyJobs: Job[];
+  };
+}
+
+export interface JobResponse {
+  status: string;
+  data: Job;
+}
+
+export interface JobDeleteResponse {
+  status: string;
+  message: string;
 }

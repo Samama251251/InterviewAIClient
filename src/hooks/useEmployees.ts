@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../services/api';
-import { Employee, CreateEmployeeInput, UpdateEmployeeInput } from '../types/employee';
+import { Employee, CreateEmployeeInput, UpdateEmployeeInput, EmployeesResponse, EmployeeResponse, EmployeeDeleteResponse } from '../types/employee';
 import { useToast } from './useToast';
 
 // Query keys
@@ -14,9 +14,9 @@ export const useEmployees = () => {
   // Get all employees
   const getEmployees = useQuery({
     queryKey: [EMPLOYEES],
-    queryFn: async () => {
+    queryFn: async (): Promise<Employee[]> => {
       try {
-        const response = await api.get('/employees');
+        const response = await api.get<EmployeesResponse>('/employees');
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch employees');
@@ -28,9 +28,9 @@ export const useEmployees = () => {
   // Get employee by ID
   const getEmployeeById = (id: string) => useQuery({
     queryKey: [EMPLOYEES, id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Employee> => {
       try {
-        const response = await api.get(`/employees/${id}`);
+        const response = await api.get<EmployeeResponse>(`/employees/${id}`);
         return response.data.data;
       } catch (error) {
         toast.error('Failed to fetch employee details');
@@ -42,8 +42,8 @@ export const useEmployees = () => {
 
   // Create a new employee
   const createEmployee = useMutation({
-    mutationFn: async (data: CreateEmployeeInput) => {
-      const response = await api.post('/employees', data);
+    mutationFn: async (data: CreateEmployeeInput): Promise<Employee> => {
+      const response = await api.post<EmployeeResponse>('/employees', data);
       return response.data.data;
     },
     onSuccess: () => {
@@ -57,8 +57,8 @@ export const useEmployees = () => {
 
   // Update an employee
   const updateEmployee = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: UpdateEmployeeInput }) => {
-      const response = await api.put(`/employees/${id}`, data);
+    mutationFn: async ({ id, data }: { id: string; data: UpdateEmployeeInput }): Promise<Employee> => {
+      const response = await api.put<EmployeeResponse>(`/employees/${id}`, data);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -73,8 +73,8 @@ export const useEmployees = () => {
 
   // Delete an employee
   const deleteEmployee = useMutation({
-    mutationFn: async (id: string) => {
-      const response = await api.delete(`/employees/${id}`);
+    mutationFn: async (id: string): Promise<{ status: string; message: string }> => {
+      const response = await api.delete<EmployeeDeleteResponse>(`/employees/${id}`);
       return response.data;
     },
     onSuccess: () => {

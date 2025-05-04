@@ -27,7 +27,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
         {
            provider: "google",
            // Remove client-side callbackURL, let server handle final redirect
-          callbackURL: "http://localhost:5173/employee"
+          callbackURL: `${import.meta.env.VITE_BETTER_AUTH_URL}/employee`
         }
       );
       // The browser should redirect to Google, and then back based on server config
@@ -46,7 +46,7 @@ export const AuthContextProvider = ({ children }: { children: React.ReactNode })
       await authClient.signIn.social(
         {
           provider: "github",
-          callbackURL: "http://localhost:5173/employee"
+          callbackURL: `${import.meta.env.VITE_BETTER_AUTH_URL}/employee`
         }
       );
     } catch (error) {

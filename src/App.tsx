@@ -8,12 +8,15 @@ import MainLayout from "@/components/layout/MainLayout"
 import DashboardOverview from "@/pages/DashboardOverview"
 import JobsPage from "@/pages/JobsPage"
 import JobDetailPage from "@/pages/JobDetailPage"
+import JobCandidatesPage from "@/pages/JobCandidatesPage"
 import CandidatesPage from "@/pages/CandidatesPage"
 import SettingsPage from "@/pages/SettingsPage"
 import ProfilePage from "@/pages/ProfilePage"
 import IntervieweeDashboard from "@/pages/IntervieweDashboard"
+import CreateCompanyPage from "@/pages/CreateCompanyPage"
 import PrivateRoute from "@/components/common/PrivateRoute"
 import { useState, useEffect } from 'react';
+import { CompanyProvider } from '@/contexts/CompanyContext';
 
 function App() {
   // Theme state and toggle function
@@ -49,14 +52,18 @@ function App() {
             path="/employee" 
             element={
               <PrivateRoute>
-                <DashboardLayout theme={theme} toggleTheme={toggleTheme} />
+                <CompanyProvider>
+                  <DashboardLayout theme={theme} toggleTheme={toggleTheme} />
+                </CompanyProvider>
               </PrivateRoute>
             }
           >
             <Route index element={<DashboardOverview />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
+            <Route path="jobs/:jobId/candidates" element={<JobCandidatesPage />} />
             <Route path="candidates" element={<CandidatesPage />} />
+            <Route path="companies/new" element={<CreateCompanyPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>

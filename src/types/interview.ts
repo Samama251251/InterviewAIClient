@@ -1,13 +1,23 @@
-export type InterviewStatus = 'pending' | 'completed' | 'cancelled';
+import { Job } from './job';
+import { User } from './user';
 
 export interface Interview {
-    id: string;
-    jobId: string;
-    candidateName: string;
-    candidateEmail: string;
-    status: InterviewStatus;
-    scheduledFor?: string; // ISO string
-    completedAt?: string; // ISO string
-    score?: number;
-    feedback?: string;
-  }
+  _id: string;
+  job_id: string | Job;
+  user_id: string | User;
+  time: string;
+  date: string; // ISO date string
+  userRole?: 'interviewee' | 'interviewer'; // Added by the API for client context
+}
+
+export interface CreateInterviewInput {
+  job_id: string;
+  user_id: string;
+  time: string;
+  date: string; // ISO date string in YYYY-MM-DD format
+}
+
+export interface UpdateInterviewInput {
+  time?: string;
+  date?: string; // ISO date string in YYYY-MM-DD format
+}

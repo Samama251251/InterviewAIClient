@@ -67,3 +67,5 @@ Lemonade (For light):
   --color-error-content: oklch(0% 0 0);
 
   Make sure to design the ui keeping in mind this
+
+  -> ALWAYS MAKE SURE THAT THE WEBSITE IS RESPONSIVE (DESIGN IT FROM MOBILE FIRST PERSPECTIVE)

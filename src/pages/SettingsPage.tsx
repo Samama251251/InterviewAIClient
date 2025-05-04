@@ -1,19 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Building, Save, AtSign, BriefcaseBusiness, FileText, ArrowLeft } from 'lucide-react';
+import { User, Save, AtSign, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { UserAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/useToast';
+import { editUser } from '@/services/editUserService';
 
 const SettingsPage: React.FC = () => {
+  const { session } = UserAuth();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState('');
+  const [nameError, setNameError] = useState('');
   
-  const handleSubmit = (e: React.FormEvent) => {
+  // When the session data loads, set the name field
+  useEffect(() => {
+    if (session?.user?.name) {
+      setName(session.user.name);
+    }
+  }, [session]);
+  
+  // Validate form fields
+  const validateForm = () => {
+    let isValid = true;
+    
+    // Validate name
+    if (!name.trim()) {
+      setNameError('Name is required');
+      isValid = false;
+    } else if (name.trim().length < 2) {
+      setNameError('Name must be at least 2 characters');
+      isValid = false;
+    } else {
+      setNameError('');
+    }
+    
+    return isValid;
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form fields
+    if (!validateForm()) {
+      return;
+    }
+
+    // Don't submit if no changes were made
+    if (session?.user?.name === name) {
+      toast.info('No changes to save');
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const userId = session?.user?.id;
+      
+      if (!userId) {
+        throw new Error('User ID is not available');
+      }
+      
+      // Call the edit user service
+      await editUser(userId, { name: name.trim() });
+      
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to update profile');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
+  };
+  
+  const handleReset = () => {
+    if (session?.user?.name) {
+      setName(session.user.name);
+    }
+    setNameError('');
   };
   
   // Animation variants
@@ -80,11 +144,17 @@ const SettingsPage: React.FC = () => {
                   <div className="relative">
                     <input 
                       id="name" 
-                      className="input input-bordered w-full pl-10" 
-                      defaultValue="John Doe" 
+                      className={`input input-bordered w-full pl-10 ${nameError ? 'input-error' : ''}`}
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
                     />
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-base-content/40" />
                   </div>
+                  {nameError && (
+                    <label className="label">
+                      <span className="label-text-alt text-error">{nameError}</span>
+                    </label>
+                  )}
                 </div>
                 
                 <div className="form-control w-full">
@@ -96,7 +166,7 @@ const SettingsPage: React.FC = () => {
                       id="email" 
                       type="email" 
                       className="input input-bordered w-full pl-10 bg-base-200 cursor-not-allowed" 
-                      defaultValue="john.doe@example.com" 
+                      value={session?.user?.email || ''}
                       disabled
                       readOnly
                     />
@@ -114,7 +184,7 @@ const SettingsPage: React.FC = () => {
               <button 
                 type="submit" 
                 className="btn btn-primary flex items-center gap-2"
-                disabled={isLoading}
+                disabled={isLoading || !session?.user}
               >
                 {isLoading ? (
                   <>
@@ -128,7 +198,12 @@ const SettingsPage: React.FC = () => {
                   </>
                 )}
               </button>
-              <button type="reset" className="btn btn-outline">
+              <button 
+                type="button" 
+                className="btn btn-outline"
+                onClick={handleReset}
+                disabled={isLoading}
+              >
                 Reset
               </button>
             </div>

@@ -51,9 +51,9 @@ const ScreenCandidatesModal: React.FC<ScreenCandidatesModalProps> = ({
           </button>
         </div>
 
-        <div className="bg-warning/10 p-4 rounded-lg mb-4">
+        <div className="bg-error/10 p-4 rounded-lg mb-4">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-warning mt-0.5" />
+            <AlertTriangle className="h-5 w-5 text-error mt-0.5" />
             <div>
               <p className="font-medium text-sm">Are you sure you want to screen candidates?</p>
               <p className="text-xs text-base-content/70 mt-1">
@@ -93,7 +93,7 @@ const ScreenCandidatesModal: React.FC<ScreenCandidatesModalProps> = ({
             </button>
             <button 
               type="submit" 
-              className="btn btn-warning"
+              className="btn btn-error"
               disabled={isProcessing}
             >
               {isProcessing ? (

@@ -1,23 +1,28 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
+import { format, isPast } from 'date-fns';
 import { Job } from '@/types/job';
 import { motion } from 'framer-motion';
-import { Plus, Search, Filter, ArrowUpDown, Eye, Edit, Trash, Briefcase } from 'lucide-react';
+import { Plus, Search, ArrowUpDown, Eye, Trash, Briefcase, AlertTriangle } from 'lucide-react';
 import { useJobs } from '@/hooks/useJobs';
 import { useCompanyContext } from '@/contexts/CompanyContext';
 import { useToast } from '@/hooks/useToast';
 import CreateJobModal from '@/components/Job/CreateJobModal';
+import JobFilters from '@/components/Job/JobFilters';
 
 const JobsPage: React.FC = () => {
   const navigate = useNavigate();
   const toast = useToast();
   const { selectedCompany } = useCompanyContext();
-  const { getJobs } = useJobs();
+  const { getJobs, deleteJob } = useJobs();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'deadline' | 'applicants'>('deadline');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [jobToDelete, setJobToDelete] = useState<Job | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedTechnology, setSelectedTechnology] = useState<string | null>(null);
 
   // Get jobs data
   const { data: jobsData = { appliedJobs: [], ownedCompanyJobs: [], employeeCompanyJobs: [] }, isLoading } = getJobs;
@@ -47,8 +52,54 @@ const JobsPage: React.FC = () => {
     navigate(`/employee/jobs/${jobId}`);
   };
 
+  const handleDeleteClick = (job: Job) => {
+    setJobToDelete(job);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!jobToDelete) return;
+    
+    try {
+      await deleteJob.mutateAsync(jobToDelete._id);
+      setIsDeleteDialogOpen(false);
+      setJobToDelete(null);
+    } catch (error) {
+      console.error("Error deleting job:", error);
+    }
+  };
+
+  const cancelDelete = () => {
+    setIsDeleteDialogOpen(false);
+    setJobToDelete(null);
+  };
+
+  // Apply role and technology filters
+  const filteredByRoleAndTechJobs = useMemo(() => {
+    return companyJobs.filter(job => {
+      // If no filters are applied, show all jobs
+      if (!selectedRole && !selectedTechnology) return true;
+      
+      // Filter by role if selected
+      if (selectedRole && job.role !== selectedRole) return false;
+      
+      // Filter by technology if selected
+      if (selectedTechnology) {
+        // Handle both string and array frameworks
+        const frameworks = Array.isArray(job.framework) 
+          ? job.framework 
+          : [job.framework];
+          
+        // Check if any of the job's frameworks match the selected technology
+        if (!frameworks.some(tech => tech.includes(selectedTechnology))) return false;
+      }
+      
+      return true;
+    });
+  }, [companyJobs, selectedRole, selectedTechnology]);
+
   // Filter jobs by search term
-  const filteredJobs = companyJobs.filter(
+  const filteredJobs = filteredByRoleAndTechJobs.filter(
     (job) => job.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -76,6 +127,25 @@ const JobsPage: React.FC = () => {
       setSortBy(column);
       setSortOrder('desc');
     }
+  };
+
+  // Format framework array for display
+  const formatFramework = (framework: string | string[]) => {
+    if (Array.isArray(framework)) {
+      return framework.join(', ');
+    }
+    return framework;
+  };
+
+  // Helper to get filter description for empty state message
+  const getFilterDescription = () => {
+    const filters = [];
+    if (selectedRole) filters.push(`role "${selectedRole}"`);
+    if (selectedTechnology) filters.push(`technology "${selectedTechnology}"`);
+    
+    if (filters.length === 0) return '';
+    if (filters.length === 1) return ` with ${filters[0]}`;
+    return ` with ${filters[0]} and ${filters[1]}`;
   };
 
   return (
@@ -122,17 +192,12 @@ const JobsPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-ghost m-1">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </div>
-          <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
-            <li><a>All Jobs</a></li>
-            <li><a>Active Jobs</a></li>
-            <li><a>Closed Jobs</a></li>
-          </ul>
-        </div>
+        <JobFilters 
+          selectedRole={selectedRole}
+          selectedTechnology={selectedTechnology}
+          onRoleChange={setSelectedRole}
+          onTechnologyChange={setSelectedTechnology}
+        />
       </motion.div>
 
       {isLoading ? (
@@ -152,7 +217,11 @@ const JobsPage: React.FC = () => {
           <Briefcase className="w-12 h-12 mx-auto text-base-content/30 mb-4" />
           <h3 className="text-xl font-medium mb-2">No Jobs Found</h3>
           <p className="text-base-content/70">
-            {searchTerm ? 'No jobs match your search criteria.' : 'No jobs have been created for this company yet.'}
+            {searchTerm 
+              ? 'No jobs match your search criteria.' 
+              : (selectedRole || selectedTechnology)
+                ? `No jobs found${getFilterDescription()}.`
+                : 'No jobs have been created for this company yet.'}
           </p>
           <button 
             className="btn btn-primary mt-4" 
@@ -199,7 +268,28 @@ const JobsPage: React.FC = () => {
                       {format(new Date(job.deadline), 'MMM d, yyyy')}
                     </td>
                     <td className="py-3 px-4">{job.role}</td>
-                    <td className="py-3 px-4">{job.framework}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {Array.isArray(job.framework) ? (
+                          job.framework.map((tech) => (
+                            <span 
+                              key={tech} 
+                              className={`badge badge-sm ${
+                                selectedTechnology === tech 
+                                  ? 'badge-secondary' 
+                                  : 'badge-outline badge-secondary'
+                              }`}
+                            >
+                              {tech}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="badge badge-sm badge-outline badge-secondary">
+                            {job.framework}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-4">
                       <div className="flex flex-wrap gap-1">
                         {job.roundTypes.map((type) => (
@@ -217,10 +307,10 @@ const JobsPage: React.FC = () => {
                         >
                           <Eye className="h-4 w-4" />
                         </button>
-                        <button className="btn btn-sm btn-ghost btn-square">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button className="btn btn-sm btn-ghost btn-square text-error">
+                        <button 
+                          className="btn btn-sm btn-ghost btn-square text-error"
+                          onClick={() => handleDeleteClick(job)}
+                        >
                           <Trash className="h-4 w-4" />
                         </button>
                       </div>
@@ -239,6 +329,40 @@ const JobsPage: React.FC = () => {
         onClose={() => setIsDialogOpen(false)}
         selectedCompany={selectedCompany}
       />
+
+      {/* Delete confirmation modal */}
+      <dialog className={`modal ${isDeleteDialogOpen ? 'modal-open' : ''}`}>
+        <div className="modal-box">
+          <h3 className="font-bold text-lg flex items-center">
+            <AlertTriangle className="h-5 w-5 text-error mr-2" />
+            Confirm Deletion
+          </h3>
+          <p className="py-4">
+            Are you sure you want to delete the job <span className="font-medium">{jobToDelete?.name}</span>?
+            This will also delete all associated interviews and cannot be undone.
+          </p>
+          <div className="modal-action">
+            <button className="btn" onClick={cancelDelete}>Cancel</button>
+            <button 
+              className="btn btn-error" 
+              onClick={confirmDelete}
+              disabled={deleteJob.isPending}
+            >
+              {deleteJob.isPending ? (
+                <>
+                  <span className="loading loading-spinner loading-sm"></span>
+                  Deleting...
+                </>
+              ) : (
+                'Delete Job'
+              )}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={cancelDelete}>close</button>
+        </form>
+      </dialog>
     </div>
   );
 };

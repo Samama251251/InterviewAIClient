@@ -271,7 +271,7 @@ const JobDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-2 p-0">
+    <div className="space-y-0 p-0">
       <div>
         <button 
           className="btn btn-ghost mb-4 flex items-center gap-2"
@@ -393,13 +393,22 @@ const JobDetailPage: React.FC = () => {
                   <p className="text-sm text-base-content/70">{job.role}</p>
                 </div>
               </div>
-              
-              <div className="flex items-center">
-                <Clock className="h-5 w-5 mr-2 text-primary" />
-                <div>
-                  <p className="text-sm font-medium">Framework</p>
-                  <p className="text-sm text-base-content/70">{job.framework}</p>
-                </div>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="font-medium mb-2">Frameworks</h3>
+              <div className="flex flex-wrap gap-2">
+                {Array.isArray(job.framework) ? (
+                  job.framework.map((framework) => (
+                    <span key={framework} className="badge badge-outline badge-secondary">
+                      {framework}
+                    </span>
+                  ))
+                ) : (
+                  <span className="badge badge-outline badge-secondary">
+                    {job.framework}
+                  </span>
+                )}
               </div>
             </div>
 

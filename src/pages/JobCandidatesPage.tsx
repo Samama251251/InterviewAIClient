@@ -261,7 +261,7 @@ const JobCandidatesPage: React.FC = () => {
             </button>
             
             <button 
-              className="btn btn-warning btn-sm"
+              className="btn btn-error btn-sm"
               onClick={() => setIsScreenModalOpen(true)}
               disabled={jobInterviews.length === 0}
             >

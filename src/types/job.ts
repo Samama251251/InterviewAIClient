@@ -14,7 +14,7 @@ export interface Job {
   name: string;
   description: string;
   role: string;
-  framework: string;
+  framework: string[];
   roundTypes: RoundType[]; // API returns roundTypes array
   deadline: string; // ISO format date string
   company_id: string | CompanyReference;
@@ -25,7 +25,7 @@ export interface CreateJobInput {
   name: string;
   description: string;
   role: string;
-  framework: string;
+  framework: string[];
   roundTypes: RoundType[]; // Changed from rounds to roundTypes to match API
   deadline: string; // ISO format date string
   company_id: string;
@@ -35,7 +35,7 @@ export interface UpdateJobInput {
   name?: string;
   description?: string;
   role?: string;
-  framework?: string;
+  framework?: string[];
   roundTypes?: RoundType[]; // Changed from rounds to roundTypes to match API
   deadline?: string; // ISO format date string
 }

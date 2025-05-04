@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   const employeeMenuItems = [
     { path: '/employee', icon: <Home size={18} />, label: 'Overview', exact: true },
     { path: '/employee/jobs', icon: <Briefcase size={18} />, label: 'Job Postings' },
-    { path: '/employee/candidates', icon: <Users size={18} />, label: 'Candidates' },
+    { path: '/employee/employees', icon: <Users size={18} />, label: 'Employees' },
     { path: '/employee/settings', icon: <Settings size={18} />, label: 'Settings' }
   ];
 

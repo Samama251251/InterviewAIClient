@@ -1,16 +1,23 @@
 import { useNavigate } from 'react-router-dom';
-import { Users, BriefcaseBusiness, Building2, Calendar, UserCheck } from 'lucide-react';
+import { Users, BriefcaseBusiness, Building2, Calendar, UserCheck, Pencil, UserPlus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCompanyContext } from '@/contexts/CompanyContext';
 import { useJobs } from '@/hooks/useJobs';
 import { useInterviews } from '@/hooks/useInterviews';
 import { useEmployees } from '@/hooks/useEmployees';
 import { UserAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
+import AddEmployeeModal from '@/components/Employee/AddEmployeeModal';
+import EditCompanyModal from '@/components/Company/EditCompanyModal';
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
   const { selectedCompany } = useCompanyContext();
   const { session } = UserAuth();
+  
+  // Modal states
+  const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
+  const [isEditCompanyModalOpen, setIsEditCompanyModalOpen] = useState(false);
   
   // Fetch data using the hooks
   const { getJobs } = useJobs();
@@ -307,8 +314,9 @@ const DashboardOverview = () => {
                     {isOwner && (
                       <button 
                         className="btn btn-outline btn-sm w-full mt-3"
-                        onClick={() => navigate('/employee/team/add')}
+                        onClick={() => setIsAddEmployeeModalOpen(true)}
                       >
+                        <UserPlus className="h-4 w-4 mr-2" />
                         Add Team Member
                       </button>
                     )}
@@ -334,21 +342,22 @@ const DashboardOverview = () => {
                 </button>
                 <button 
                   className="btn btn-outline"
-                  onClick={() => navigate('/employee/candidates')}
+                  onClick={() => navigate('/employee/jobs')}
                 >
-                  View Candidates
+                  View Jobs
                 </button>
                 <button 
                   className="btn btn-outline"
-                  onClick={() => navigate('/employee/interviews/new')}
+                  onClick={() => navigate('/employee/employees')}
                 >
-                  Schedule Interview
+                  View Employees
                 </button>
                 <button 
                   className="btn btn-outline"
-                  onClick={() => navigate('/employee/reports')}
+                  onClick={() => setIsEditCompanyModalOpen(true)}
                 >
-                  Generate Reports
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Edit Company Details
                 </button>
               </div>
             </div>
@@ -368,6 +377,23 @@ const DashboardOverview = () => {
             Create New Company
           </button>
         </div>
+      )}
+      
+      {/* Modals */}
+      {selectedCompany && (
+        <>
+          <AddEmployeeModal
+            isOpen={isAddEmployeeModalOpen}
+            onClose={() => setIsAddEmployeeModalOpen(false)}
+            company={selectedCompany}
+          />
+          
+          <EditCompanyModal
+            isOpen={isEditCompanyModalOpen}
+            onClose={() => setIsEditCompanyModalOpen(false)}
+            company={selectedCompany}
+          />
+        </>
       )}
     </motion.div>
   );

@@ -1,16 +1,24 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, User, CheckCircle, FileText, Star, AlertCircle, UserPlus } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, AlertCircle, UserPlus, Filter, Upload } from 'lucide-react';
 import { Interview, InterviewRound } from '@/types/interview';
 import { useJobs } from '@/hooks/useJobs';
 import { useInterviews } from '@/hooks/useInterviews';
 import { format, parseISO } from 'date-fns';
+import AddCandidateModal from '@/components/Candidate/AddCandidateModal';
+import BulkUploadModal from '@/components/Candidate/BulkUploadModal';
+import ScreenCandidatesModal from '@/components/Candidate/ScreenCandidatesModal';
+import { screenCandidates } from '@/services/screenCandidates';
 
 const JobCandidatesPage: React.FC = () => {
   const { jobId = '' } = useParams<{ jobId: string }>();
-  const navigate = useNavigate();
+  const navigate = useNavigate();  
+  // Tab and modal states
   const [activeTab, setActiveTab] = useState('pending');
+  const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
+  const [isScreenModalOpen, setIsScreenModalOpen] = useState(false);
   
   // Use useJobs hook to fetch job details
   const { getJobById } = useJobs();
@@ -45,6 +53,28 @@ const JobCandidatesPage: React.FC = () => {
       interview.status === 'completed'
     );
   }, [jobInterviews]);
+  
+  // Handle successful bulk upload
+  const handleBulkUploadSuccess = (result: { successful: number; failed: number; total: number }) => {
+    // Refresh the interviews list
+    getInterviews.refetch();
+  };
+  
+  // Handle candidate screening
+  const handleScreenCandidates = async (criteria: string) => {
+    try {
+      // Use the screenCandidates service
+      const result = await screenCandidates(jobId, criteria);
+      
+      // Refresh the interviews list after screening
+      getInterviews.refetch();
+      
+      // Return a success message
+      return Promise.resolve(`Successfully screened candidates: ${result.screened} removed, ${result.remaining} remaining.`);
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  };
   
   // Check if still loading any data
   const isLoading = isJobLoading || isInterviewsLoading;
@@ -136,7 +166,6 @@ const JobCandidatesPage: React.FC = () => {
             <tr>
               <th>Candidate</th>
               <th>Email</th>
-              <th>Scheduled For</th>
               {activeTab === 'completed' && (
                 <>
                   <th>Score</th>
@@ -161,7 +190,6 @@ const JobCandidatesPage: React.FC = () => {
                 <tr key={interview._id}>
                   <td className="font-medium">{user.name}</td>
                   <td>{user.email}</td>
-                  <td>{formatDateTime(interview.date, interview.time)}</td>
                   {activeTab === 'completed' && (
                     <>
                       <td>
@@ -203,10 +231,10 @@ const JobCandidatesPage: React.FC = () => {
         </button>
         
         <motion.div 
-          className="flex items-center justify-between"
-          initial={{ opacity: 0, y: -10 }}
+          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          initial={{ opacity: 1, y: -5 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
+          transition={{ duration: 0.2 }}
         >
           <div>
             <h1 className="text-3xl font-bold tracking-tight">{job.name} - Candidates</h1>
@@ -215,21 +243,40 @@ const JobCandidatesPage: React.FC = () => {
             </p>
           </div>
           
-          <button 
-            className="btn btn-primary btn-sm"
-            onClick={() => navigate(`/employee/jobs/${jobId}`, { state: { openAddCandidate: true } })}
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Candidate
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button 
+              className="btn btn-primary btn-sm"
+              onClick={() => setIsAddCandidateModalOpen(true)}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add Candidate
+            </button>
+            
+            <button 
+              className="btn btn-outline btn-sm"
+              onClick={() => setIsBulkUploadModalOpen(true)}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Bulk Upload
+            </button>
+            
+            <button 
+              className="btn btn-warning btn-sm"
+              onClick={() => setIsScreenModalOpen(true)}
+              disabled={jobInterviews.length === 0}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Screen Candidates
+            </button>
+          </div>
         </motion.div>
       </div>
 
       <motion.div 
         className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300"
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 1, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: 0.1 }}
+        transition={{ duration: 0.2 }}
       >
         <div className="card-body">
           <div className="tabs tabs-boxed mb-6 bg-base-200 inline-flex">
@@ -253,6 +300,26 @@ const JobCandidatesPage: React.FC = () => {
           {activeTab === 'completed' && renderInterviewTable(completedInterviews)}
         </div>
       </motion.div>
+
+      {/* Modals */}
+      <AddCandidateModal
+        isOpen={isAddCandidateModalOpen}
+        onClose={() => setIsAddCandidateModalOpen(false)}
+        jobId={jobId}
+      />
+      
+      <BulkUploadModal
+        isOpen={isBulkUploadModalOpen}
+        onClose={() => setIsBulkUploadModalOpen(false)}
+        jobId={jobId}
+        onSuccess={handleBulkUploadSuccess}
+      />
+      
+      <ScreenCandidatesModal
+        isOpen={isScreenModalOpen}
+        onClose={() => setIsScreenModalOpen(false)}
+        onConfirm={handleScreenCandidates}
+      />
     </div>
   );
 };

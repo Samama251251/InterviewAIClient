@@ -186,16 +186,6 @@ function IntervieweeDashboard() {
                         <Building size={16} className="mr-2" />
                         <span>{companyName}</span>
                       </div>
-                      <div className="space-y-2 my-3">
-                        <div className="flex items-center">
-                          <Calendar size={16} className="text-primary mr-2" />
-                          <span>{formatDate(interview.date)}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Clock size={16} className="text-primary mr-2" />
-                          <span>{interview.time}</span>
-                        </div>
-                      </div>
                       <div className="card-actions justify-between items-center">
                         <span className="badge badge-primary">Upcoming</span>
                         <button className="btn btn-primary btn-sm">

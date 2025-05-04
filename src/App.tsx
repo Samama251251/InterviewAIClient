@@ -9,7 +9,9 @@ import DashboardOverview from "@/pages/DashboardOverview"
 import JobsPage from "@/pages/JobsPage"
 import JobDetailPage from "@/pages/JobDetailPage"
 import JobCandidatesPage from "@/pages/JobCandidatesPage"
-import CandidatesPage from "@/pages/CandidatesPage"
+import InterviewDetailPage from "@/pages/InterviewDetailPage"
+import InterviewRoundDetailPage from "@/pages/InterviewRoundDetailPage"
+import EmployeesPage from "@/pages/EmployeesPage"
 import SettingsPage from "@/pages/SettingsPage"
 import ProfilePage from "@/pages/ProfilePage"
 import IntervieweeDashboard from "@/pages/IntervieweDashboard"
@@ -62,7 +64,9 @@ function App() {
             <Route path="jobs" element={<JobsPage />} />
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
             <Route path="jobs/:jobId/candidates" element={<JobCandidatesPage />} />
-            <Route path="candidates" element={<CandidatesPage />} />
+            <Route path="interviews/:interviewId" element={<InterviewDetailPage />} />
+            <Route path="interviews/:interviewId/rounds/:roundIndex" element={<InterviewRoundDetailPage />} />
+            <Route path="employees" element={<EmployeesPage />} />
             <Route path="companies/new" element={<CreateCompanyPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />

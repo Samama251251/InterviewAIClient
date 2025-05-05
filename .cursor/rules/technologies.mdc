@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+You should always use these sets of technologies:
+
+-> Framer Motion (For the animations)
+-> React Query
+-> React Hook Form + Zod
+-> Daisy UI
+-> React Router
+-> Lucide React
+-> React Hot Toast
+
+Additional Important instructions:
+
+-> ALWAYS MAKE SURE THAT THE WEBSITE IS RESPONSIVE (DESIGN IT FROM MOBILE FIRST PERSPECTIVE)

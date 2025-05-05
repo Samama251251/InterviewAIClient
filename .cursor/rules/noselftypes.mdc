@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Do not create types on your own, use the types as defined in the types folder.

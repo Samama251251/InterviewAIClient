@@ -1,5 +1,3 @@
-import api from '@/services/api';
-
 interface ScreeningResult {
   screened: number;
   remaining: number;
@@ -17,6 +15,8 @@ export const screenCandidates = async (
   criteria: string
 ): Promise<ScreeningResult> => {
   try {
+    console.log(jobId);
+    console.log(criteria);
     // In a real implementation, this would make an API call to the backend
     // The backend would apply AI-based screening using the criteria
     

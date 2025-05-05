@@ -1,18 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format, isPast } from 'date-fns';
+import { format } from 'date-fns';
 import { Job } from '@/types/job';
 import { motion } from 'framer-motion';
 import { Plus, Search, ArrowUpDown, Eye, Trash, Briefcase, AlertTriangle } from 'lucide-react';
 import { useJobs } from '@/hooks/useJobs';
 import { useCompanyContext } from '@/contexts/CompanyContext';
-import { useToast } from '@/hooks/useToast';
 import CreateJobModal from '@/components/Job/CreateJobModal';
 import JobFilters from '@/components/Job/JobFilters';
 
 const JobsPage: React.FC = () => {
   const navigate = useNavigate();
-  const toast = useToast();
   const { selectedCompany } = useCompanyContext();
   const { getJobs, deleteJob } = useJobs();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -127,14 +125,6 @@ const JobsPage: React.FC = () => {
       setSortBy(column);
       setSortOrder('desc');
     }
-  };
-
-  // Format framework array for display
-  const formatFramework = (framework: string | string[]) => {
-    if (Array.isArray(framework)) {
-      return framework.join(', ');
-    }
-    return framework;
   };
 
   // Helper to get filter description for empty state message

@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useMemo } from "react";
 import { UserAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Calendar, Clock, ArrowRight, AlertCircle, Building } from "lucide-react";
+import { 
+  AlertCircle, 
+  Building, 
+  CheckCircle2, 
+  BriefcaseBusiness, 
+  FileCheck, 
+  CalendarDays, 
+  ListChecks, 
+  UserCog, 
+  ScrollText
+} from "lucide-react";
 import { useJobs } from "../hooks/useJobs";
 import { useInterviews } from "../hooks/useInterviews";
-import { Interview } from "../types/interview";
-import { Job } from "../types/job";
-import { Company } from "../types/company";
+import { Interview, InterviewRound } from "../types/interview";
+import { useNavigate } from "react-router-dom";
 
 function IntervieweeDashboard() {
-  const [activeTab, setActiveTab] = useState("upcoming");
+  const navigate = useNavigate();
   const { session } = UserAuth();
   const user = session?.user;
 
@@ -23,50 +32,88 @@ function IntervieweeDashboard() {
   // Fetch interviews
   const interviewsQuery = getInterviews;
 
-  // Derived data
-  const upcomingInterviews = interviewsQuery.data?.filter((interview: Interview) => 
-    new Date(interview.date) > new Date()
-  ) || [];
-  const pastInterviews = interviewsQuery.data?.filter((interview: Interview) => 
-    new Date(interview.date) <= new Date()
-  ) || [];
+
+  // Get all jobs I've applied to (as an interviewee)
+  const appliedJobs = useMemo(() => {
+    return jobsQuery.data?.appliedJobs || [];
+  }, [jobsQuery.data]);
+
+  // Get all interviews for me as an interviewee
+  const myInterviews = useMemo(() => {
+    return interviewsQuery.data?.filter(interview => 
+      interview.role === 'interviewee'
+    ) || [];
+  }, [interviewsQuery.data]);
+
+  // Get all interview rounds
+  const allInterviewRounds = useMemo(() => {
+    const rounds: { interview: Interview; round: InterviewRound }[] = [];
+    
+    myInterviews.forEach(interview => {
+      (interview.rounds || []).forEach(round => {
+        rounds.push({ interview, round });
+      });
+    });
+    
+    return rounds;
+  }, [myInterviews]);
+
+  // Split upcoming and past interview rounds
+  const upcomingInterviewRounds = useMemo(() => {
+    return allInterviewRounds.filter(({ round }) => 
+      round.status === "pending"
+    );
+  }, [allInterviewRounds]);
+
+  const pastInterviewRounds = useMemo(() => {
+    return allInterviewRounds.filter(({ round }) => 
+      round.status === "completed"
+    );
+  }, [allInterviewRounds]);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        staggerChildren: 0.1,
+        duration: 0.5
+      }
+    }
+  };
+  
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
+  // Helper function to get job details
+  const getJobDetails = (interview: Interview) => {
+    const jobRef = interview.job_id;
+    
+    if (typeof jobRef === 'string') {
+      // Find in applied jobs
+      const job = appliedJobs.find(j => j._id === jobRef);
+      return {
+        name: job?.name || 'Unknown Job',
+        company: typeof job?.company_id === 'string' 
+          ? job?.company_id 
+          : job?.company_id?.name || 'Unknown Company'
+      };
+    } else {
+      // Job reference is already an object
+      return {
+        name: jobRef.name,
+        company: typeof jobRef.company_id === 'string'
+          ? jobRef.company_id
+          : jobRef.company_id?.name || 'Unknown Company'
+      };
+    }
+  };
 
   const isLoading = jobsQuery.isLoading || interviewsQuery.isLoading;
   const isError = jobsQuery.isError || interviewsQuery.isError;
-
-  // Format date for display
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
-  };
-
-  // Helper function to get job name
-  const getJobName = (jobId: string | Job): string => {
-    if (typeof jobId === 'string') {
-      const job = jobsQuery.data?.find((j: Job) => j._id === jobId);
-      return job?.name || 'Unknown Job';
-    } else {
-      return jobId.name;
-    }
-  };
-
-  // Helper function to get company name
-  const getCompanyName = (jobId: string | Job): string => {
-    if (typeof jobId === 'string') {
-      const job = jobsQuery.data?.find((j: Job) => j._id === jobId);
-      return typeof job?.company_id === 'string' 
-        ? job?.company_id || 'Unknown Company' 
-        : (job?.company_id as Company)?.name || 'Unknown Company';
-    } else {
-      return typeof jobId.company_id === 'string'
-        ? jobId.company_id
-        : (jobId.company_id as Company)?.name || 'Unknown Company';
-    }
-  };
 
   if (isLoading) {
     return (
@@ -88,230 +135,258 @@ function IntervieweeDashboard() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Welcome Section */}
-      <motion.div 
-        className="card bg-base-100 shadow-md mb-8"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="card-body">
-          <div className="flex justify-between items-start flex-col sm:flex-row">
-            <div>
-              <h1 className="text-2xl font-bold mb-2">Welcome, {user?.name || 'User'}!</h1>
-              <p className="text-base-content/70">
-                {upcomingInterviews.length > 0 
-                  ? `You have ${upcomingInterviews.length} upcoming ${upcomingInterviews.length === 1 ? 'interview' : 'interviews'}.` 
-                  : "No interviews scheduled yet."}
-              </p>
-            </div>
-            <div className="flex items-center mt-4 sm:mt-0">
-              {user?.image ? (
-                <div className="avatar">
-                  <div className="w-12 rounded-full ring ring-primary ring-opacity-10">
-                    <img src={user.image} alt={user.name || "User"} />
-                  </div>
-                </div>
-              ) : (
-                <div className="avatar placeholder">
-                  <div className="bg-primary text-primary-content rounded-full w-12">
-                    <span className="text-xl">{user?.name?.charAt(0) || 'U'}</span>
-                  </div>
-                </div>
-              )}
-              <div className="ml-4">
-                <div className="font-medium">{user?.name || 'User'}</div>
-                <div className="text-sm opacity-70">{user?.email || ''}</div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <motion.div 
+      className="p-4 md:p-6 space-y-2"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
+      {/* Header */}
+      <motion.div variants={itemVariants}>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-base-content/70 mt-2">
+          Welcome back, {user?.name || 'User'}! Here's an overview of your interview progress.
+        </p>
       </motion.div>
 
-      {/* Tab Navigation */}
-      <div className="mb-6">
-        <div className="tabs tabs-boxed bg-base-200">
-          <a 
-            className={`tab ${activeTab === "upcoming" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("upcoming")}
-          >
-            Upcoming Interviews
-          </a>
-          <a 
-            className={`tab ${activeTab === "past" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("past")}
-          >
-            Past Interviews
-          </a>
-          <a 
-            className={`tab ${activeTab === "guidelines" ? "tab-active" : ""}`}
-            onClick={() => setActiveTab("guidelines")}
-          >
-            Guidelines
-          </a>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-300"
+          variants={itemVariants}
+        >
+          <div className="card-body p-6">
+            <div className="flex justify-between items-center">
+              <h3 className="card-title text-sm font-medium">Applied Jobs</h3>
+              <BriefcaseBusiness className="h-5 w-5 text-primary" />
+            </div>
+            <div className="mt-2">
+              <div className="text-2xl font-bold">{appliedJobs.length}</div>
+              <p className="text-xs text-base-content/70 mt-1">
+                Total jobs you've applied to
+              </p>
+            </div>
+          </div>
+        </motion.div>
+        
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-300"
+          variants={itemVariants}
+        >
+          <div className="card-body p-6">
+            <div className="flex justify-between items-center">
+              <h3 className="card-title text-sm font-medium">Total Rounds</h3>
+              <FileCheck className="h-5 w-5 text-secondary" />
+            </div>
+            <div className="mt-2">
+              <div className="text-2xl font-bold">{allInterviewRounds.length}</div>
+              <p className="text-xs text-base-content/70 mt-1">
+                Interview rounds across all jobs
+              </p>
+            </div>
+          </div>
+        </motion.div>
+        
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-300"
+          variants={itemVariants}
+        >
+          <div className="card-body p-6">
+            <div className="flex justify-between items-center">
+              <h3 className="card-title text-sm font-medium">Upcoming Rounds</h3>
+              <CalendarDays className="h-5 w-5 text-accent" />
+            </div>
+            <div className="mt-2">
+              <div className="text-2xl font-bold">{upcomingInterviewRounds.length}</div>
+              <p className="text-xs text-base-content/70 mt-1">
+                Interview rounds yet to complete
+              </p>
+            </div>
+          </div>
+        </motion.div>
+        
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all border border-base-300"
+          variants={itemVariants}
+        >
+          <div className="card-body p-6">
+            <div className="flex justify-between items-center">
+              <h3 className="card-title text-sm font-medium">Completed Rounds</h3>
+              <CheckCircle2 className="h-5 w-5 text-success" />
+            </div>
+            <div className="mt-2">
+              <div className="text-2xl font-bold">{pastInterviewRounds.length}</div>
+              <p className="text-xs text-base-content/70 mt-1">
+                Interview rounds with feedback
+              </p>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
-      {/* Main Content */}
-      {activeTab === "upcoming" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h2 className="text-xl font-semibold mb-4">Your Upcoming Interviews</h2>
-          {upcomingInterviews.length === 0 ? (
-            <div className="card bg-base-100 shadow-md">
-              <div className="card-body text-center">
-                <p className="text-base-content/70">No upcoming interviews scheduled.</p>
-                <p className="mt-2">When you apply for jobs, your interviews will appear here.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {upcomingInterviews.map((interview: Interview) => {
-                const jobName = getJobName(interview.job_id);
-                const companyName = getCompanyName(interview.job_id);
-                
-                return (
-                  <motion.div 
-                    key={interview._id}
-                    className="card bg-base-100 shadow-md"
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  >
-                    <div className="card-body">
-                      <h3 className="card-title">{jobName}</h3>
-                      <div className="flex items-center text-base-content/70 mb-2">
-                        <Building size={16} className="mr-2" />
-                        <span>{companyName}</span>
-                      </div>
-                      <div className="card-actions justify-between items-center">
-                        <span className="badge badge-primary">Upcoming</span>
-                        <button className="btn btn-primary btn-sm">
-                          Prepare
-                          <ArrowRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {activeTab === "past" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <h2 className="text-xl font-semibold mb-4">Past Interviews</h2>
-          {pastInterviews.length === 0 ? (
-            <div className="card bg-base-100 shadow-md">
-              <div className="card-body text-center">
-                <p className="text-base-content/70">No past interviews found.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {pastInterviews.map((interview: Interview) => {
-                const jobName = getJobName(interview.job_id);
-                const companyName = getCompanyName(interview.job_id);
-                
-                return (
-                  <motion.div 
-                    key={interview._id}
-                    className="card bg-base-100 shadow-md"
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                  >
-                    <div className="card-body">
-                      <h3 className="card-title">{jobName}</h3>
-                      <div className="flex items-center text-base-content/70 mb-2">
-                        <Building size={16} className="mr-2" />
-                        <span>{companyName}</span>
-                      </div>
-                      <div className="space-y-2 my-3">
-                        <div className="flex items-center">
-                          <Calendar size={16} className="text-primary mr-2" />
-                          <span>{formatDate(interview.date)}</span>
-                        </div>
-                        <div className="flex items-center">
-                          <Clock size={16} className="text-primary mr-2" />
-                          <span>{interview.time}</span>
-                        </div>
-                      </div>
-                      <div className="card-actions justify-between items-center">
-                        <span className="badge badge-neutral">Completed</span>
-                        <button className="btn btn-neutral btn-sm">
-                          View Report
-                          <ArrowRight size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {activeTab === "guidelines" && (
+      {/* Main Content Grid */}
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* Applied Jobs Section */}
         <motion.div 
-          className="card bg-base-100 shadow-md"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+          className="lg:col-span-7 card bg-base-100 shadow-sm border border-base-300"
+          variants={itemVariants}
         >
-          <div className="card-body">
-            <h2 className="card-title">Interview Guidelines</h2>
-            <div className="space-y-4 mt-2">
-              <div className="alert bg-primary/10 border-primary">
-                <h3 className="font-medium">Before the Interview</h3>
-                <ul className="list-disc ml-5 mt-2">
-                  <li>Research the company and the role thoroughly</li>
-                  <li>Prepare questions to ask the interviewer</li>
-                  <li>Test your camera and microphone if it's a remote interview</li>
-                  <li>Have your resume and portfolio ready</li>
-                </ul>
-              </div>
-              
-              <div className="alert bg-success/10 border-success">
-                <h3 className="font-medium">During the Interview</h3>
-                <ul className="list-disc ml-5 mt-2">
-                  <li>Don't close the browser during online assessments</li>
-                  <li>Ensure your webcam is enabled if required</li>
-                  <li>Be professional and maintain good body language</li>
-                  <li>Speak clearly and confidently</li>
-                  <li>Plagiarism on coding tests is strictly monitored</li>
-                </ul>
-              </div>
-              
-              <div className="alert bg-secondary/10 border-secondary">
-                <h3 className="font-medium">After the Interview</h3>
-                <ul className="list-disc ml-5 mt-2">
-                  <li>Send a thank-you email to your interviewer</li>
-                  <li>Follow up if you don't hear back within the specified timeframe</li>
-                  <li>Review and reflect on your performance</li>
-                </ul>
+          <div className="card-body p-0">
+            <div className="p-4 md:p-6 border-b border-base-300">
+              <div className="flex justify-between items-center">
+                <h3 className="card-title">Applied Jobs</h3>
+                <button 
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => navigate('/applied-jobs')}
+                >
+                  View all
+                </button>
               </div>
             </div>
             
-            <div className="alert alert-warning mt-6">
-              <AlertCircle className="w-6 h-6" />
-              <div>
-                <h3 className="font-bold">Need Help?</h3>
-                <div className="text-sm">If you face any technical issues during the interview process, please contact support.</div>
-              </div>
-              <button className="btn btn-warning btn-sm">Contact Support</button>
+            <div className="overflow-x-auto">
+              <table className="table">
+                <thead className="bg-base-200/50">
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Status</th>
+                    <th className="w-24"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appliedJobs.slice(0, 5).map((job) => (
+                    <tr key={job._id} className="hover:bg-base-200/50">
+                      <td className="font-medium">{job.name}</td>
+                      <td>
+                        {typeof job.company_id === 'string' 
+                          ? job.company_id 
+                          : job.company_id?.name || 'Unknown'}
+                      </td>
+                      <td>
+                        <span className="badge badge-primary badge-sm">Applied</span>
+                      </td>
+                      <td>
+                        <button 
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => navigate(`/job/${job._id}`)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  
+                  {appliedJobs.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-base-content/70">
+                        You haven't applied to any jobs yet
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </motion.div>
-      )}
-    </div>
+
+        {/* Upcoming Interviews Section */}
+        <motion.div className="lg:col-span-5 space-y-6" variants={itemVariants}>              
+          <div className="card bg-base-100 shadow-sm border border-base-300">
+            <div className="card-body">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="card-title">Upcoming Interview Rounds</h3>
+                <button 
+                  className="btn btn-sm btn-ghost"
+                  onClick={() => navigate('/interviews')}
+                >
+                  View all
+                </button>
+              </div>
+              
+              <div className="space-y-3">
+                {upcomingInterviewRounds.slice(0, 3).map(({ interview, round }, index) => {
+                  const { name: jobName, company: companyName } = getJobDetails(interview);
+                  
+                  return (
+                    <div 
+                      key={`${interview._id}-${index}`}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-base-200/50 border border-base-200"
+                    >
+                      <div className="flex gap-3">
+                        <div className="avatar placeholder">
+                          <div className="bg-primary text-primary-content w-8 rounded-full">
+                            <span className="text-xs">{companyName.substring(0, 2).toUpperCase()}</span>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{jobName}</p>
+                          <div className="flex items-center text-xs text-base-content/70">
+                            <Building className="h-3 w-3 mr-1" />
+                            <span>{companyName}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <span className="badge badge-accent badge-sm">{round.type}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {upcomingInterviewRounds.length === 0 && (
+                  <div className="text-center py-4 text-base-content/70 text-sm">
+                    No upcoming interview rounds scheduled
+                  </div>
+                )}
+                
+                <button 
+                  className="btn btn-primary btn-sm w-full mt-3"
+                  onClick={() => navigate('/interviews')}
+                >
+                  View All Interviews
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Guidelines Card */}
+        </motion.div>
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div 
+        className="card bg-base-100 shadow-sm border border-base-300"
+        variants={itemVariants}
+      >
+        <div className="card-body">
+          <h3 className="card-title mb-4">Quick Actions</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <button 
+              className="btn btn-primary"
+              onClick={() => navigate('/take-interview')}
+            >
+              <ListChecks className="h-4 w-4 mr-2" />
+              Take Interview
+            </button>
+            <button 
+              className="btn btn-outline"
+              onClick={() => navigate('/interviews')}
+            >
+              <ScrollText className="h-4 w-4 mr-2" />
+              View Interviews
+            </button>
+            <button 
+              className="btn btn-outline"
+              onClick={() => navigate('/settings')}
+            >
+              <UserCog className="h-4 w-4 mr-2" />
+              Edit Details
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

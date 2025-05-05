@@ -1,6 +1,6 @@
 import { ArrowRight, BarChart, Users, BrainCircuit } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { fadeIn, fadeInUp, bounceAnimation, pulseAnimation, staggerContainer, MotionContainer } from '@/components/common/AnimationStyles';
+import { fadeInUp, bounceAnimation, pulseAnimation, MotionContainer } from '@/components/common/AnimationStyles';
 
 export function HeroSection() {
   return (

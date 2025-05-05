@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Github, Mail, AlertCircle } from "lucide-react";
 import { UserAuth } from "@/contexts/AuthContext";
 import { AuthCard } from "@/components/Auth/AuthCard";
 import { SocialButton } from "@/components/Auth/SocialButton";
-import { AuthDivider } from "@/components/Auth/AuthDivider";
 import { motion } from "framer-motion";
 
 export function Signup() {

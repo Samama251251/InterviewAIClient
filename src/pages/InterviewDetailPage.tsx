@@ -3,14 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, Star, ChevronRight } from 'lucide-react';
 import { useInterviews } from '@/hooks/useInterviews';
-import { format, parseISO } from 'date-fns';
-import { useToast } from '@/hooks/useToast';
 import { RoundType } from '@/types/job';
 
 const InterviewDetailPage: React.FC = () => {
   const { interviewId = '' } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
-   const toast = useToast();
   // Use useInterviews hook to fetch interview details
   const { getInterviewById } = useInterviews();
   const { data: interview, isLoading, error } = getInterviewById(interviewId);
@@ -106,15 +103,6 @@ const InterviewDetailPage: React.FC = () => {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    try {
-      const date = parseISO(dateString);
-      return format(date, 'MMMM d, yyyy');
-    } catch (e) {
-      return dateString;
-    }
-  };
 
   const getStatusBadgeClass = (status?: string) => {
     if (!status) return 'badge-secondary';

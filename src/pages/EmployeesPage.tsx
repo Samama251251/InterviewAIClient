@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Users, UserPlus, Search, Briefcase, Mail, Trash2, AlertCircle, X, Building } from 'lucide-react';
+import { Users, UserPlus, Search, Briefcase, Mail, Trash2, AlertCircle, Building } from 'lucide-react';
 import { useEmployees } from '@/hooks/useEmployees';
 import { Employee } from '@/types/employee';
 import { useToast } from '@/hooks/useToast';
@@ -183,7 +183,7 @@ const EmployeesPage: React.FC = () => {
           <div className="stat-value text-primary">{metrics.total}</div>
         </div>
         
-        {metrics.topRoles.map(([role, count], index) => (
+        {metrics.topRoles.map(([role, count]) => (
           <div 
             key={role} 
             className="stat bg-base-200 rounded-box p-4 shadow-sm"

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
-import { Github, Mail, ArrowRight, MailCheck, Loader2, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Github, Mail, AlertCircle } from "lucide-react";
 import { UserAuth } from "@/contexts/AuthContext";
 import { AuthCard } from "@/components/Auth/AuthCard";
 import { SocialButton } from "@/components/Auth/SocialButton";
 import { motion } from "framer-motion";
 
 export function Login() {
-  const { session, isPending, signInWithGoogle, signInWithGithub } = UserAuth();
+  const { signInWithGoogle, signInWithGithub } = UserAuth();
   
   // Local loading states
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);

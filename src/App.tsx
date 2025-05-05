@@ -19,6 +19,8 @@ import CreateCompanyPage from "@/pages/CreateCompanyPage"
 import PrivateRoute from "@/components/common/PrivateRoute"
 import { useState, useEffect } from 'react';
 import { CompanyProvider } from '@/contexts/CompanyContext';
+import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
+import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
 
 function App() {
   // Theme state and toggle function
@@ -81,6 +83,8 @@ function App() {
             }
           >
             <Route index element={<IntervieweeDashboard />} />
+            <Route path="interviews" element={<CandidateInterviewsPage />} />
+            <Route path="interviews/:interviewId" element={<CandidateInterviewDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
 

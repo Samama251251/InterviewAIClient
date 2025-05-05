@@ -1,22 +1,18 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Clock, User, FileText, Star, AlertCircle, UserPlus, Users } from 'lucide-react';
-import { Job } from '@/types/job';
-import { Interview, InterviewRound } from '@/types/interview';
+import { ArrowLeft, Calendar, User, FileText, Star, AlertCircle, UserPlus, Users } from 'lucide-react';
+import { InterviewRound } from '@/types/interview';
 import { useJobs } from '@/hooks/useJobs';
 import { useInterviews } from '@/hooks/useInterviews';
 import { format, parseISO } from 'date-fns';
 import AddCandidateModal from '@/components/Candidate/AddCandidateModal';
-import { useToast } from '@/hooks/useToast';
 
 const JobDetailPage: React.FC = () => {
   const { jobId = '' } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState('pending');
   const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
-  const toast = useToast();
   
   // Check location state for openAddCandidate flag
   useEffect(() => {
@@ -89,19 +85,6 @@ const JobDetailPage: React.FC = () => {
     };
   }, [jobInterviews]);
   
-  // Separate interviews into pending and completed
-  const pendingInterviews = useMemo(() => {
-    return jobInterviews.filter(interview => 
-      interview.status === 'pending' || !interview.status
-    );
-  }, [jobInterviews]);
-  
-  const completedInterviews = useMemo(() => {
-    return jobInterviews.filter(interview => 
-      interview.status === 'completed'
-    );
-  }, [jobInterviews]);
-  
   // Check if still loading any data
   const isLoading = isJobLoading || isInterviewsLoading;
   const error = jobError || interviewsError;
@@ -147,30 +130,6 @@ const JobDetailPage: React.FC = () => {
     );
   }
 
-  const getStatusBadgeClass = (relationship?: string) => {
-    if (!relationship) return 'badge-ghost';
-    
-    switch (relationship) {
-      case 'owner':
-        return 'badge-success';
-      case 'employee':
-        return 'badge-info';
-      case 'applicant':
-        return 'badge-warning';
-      default:
-        return 'badge-ghost';
-    }
-  };
-
-  const formatDateTime = (dateString: string, timeString: string) => {
-    try {
-      const date = parseISO(`${dateString}T${timeString}`);
-      return format(date, 'MMM d, yyyy h:mm a');
-    } catch (e) {
-      return `${dateString} ${timeString}`;
-    }
-  };
-
   const formatDate = (dateString: string) => {
     try {
       const date = parseISO(dateString);
@@ -180,12 +139,6 @@ const JobDetailPage: React.FC = () => {
     }
   };
 
-  const getScoreBadgeClass = (score?: number) => {
-    if (!score) return 'badge-ghost';
-    if (score >= 80) return 'badge-success';
-    if (score >= 60) return 'badge-warning';
-    return 'badge-error';
-  };
 
   const calculateAverageScore = (rounds: InterviewRound[]) => {
     // Filter out rounds without scores
@@ -198,76 +151,6 @@ const JobDetailPage: React.FC = () => {
       acc + (round.score || 0), 0);
     
     return Math.round(sum / roundsWithScores.length);
-  };
-
-  const renderInterviewTable = (interviews: Interview[]) => {
-    if (interviews.length === 0) {
-      return (
-        <div className="text-center py-12">
-          <p className="text-base-content/70">No interviews in this category yet.</p>
-        </div>
-      );
-    }
-    
-    return (
-      <div className="overflow-x-auto">
-        <table className="table table-zebra">
-          <thead>
-            <tr>
-              <th>Candidate</th>
-              <th>Email</th>
-              <th>Scheduled For</th>
-              {activeTab === 'completed' && (
-                <>
-                  <th>Score</th>
-                  <th>Rounds</th>
-                </>
-              )}
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {interviews.map((interview) => {
-              // Extract user data from the interview
-              const user = typeof interview.user_id === 'object' 
-                ? interview.user_id 
-                : { name: 'N/A', email: 'N/A' };
-
-              // Calculate average score using the improved function
-              const rounds = interview.rounds || [];
-              const totalScore = calculateAverageScore(rounds);
-              
-              return (
-                <tr key={interview._id}>
-                  <td className="font-medium">{user.name}</td>
-                  <td>{user.email}</td>
-                  {activeTab === 'completed' && (
-                    <>
-                      <td>
-                        {totalScore !== undefined ? (
-                          <span className={`badge ${getScoreBadgeClass(totalScore)}`}>
-                            {totalScore}%
-                          </span>
-                        ) : '-'}
-                      </td>
-                      <td>{rounds.length}</td>
-                    </>
-                  )}
-                  <td>
-                    <button 
-                      className="btn btn-xs btn-primary"
-                      onClick={() => navigate(`/employee/interviews/${interview._id}`)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
   };
 
   return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft, Menu, Calendar, UserRound } from 'lucide-react';
+import { LogOut, Home, Briefcase, Users, Settings, ChevronLeft, Menu, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UserAuth } from '@/contexts/AuthContext';
 
@@ -134,7 +134,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
                   className="space-y-1"
                   variants={itemVariants}
                 >
-                  {menuItems.map((item, index) => (
+                  {menuItems.map((item) => (
                     <motion.li 
                       key={item.path}
                       variants={itemVariants}

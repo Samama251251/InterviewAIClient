@@ -54,7 +54,6 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
     formState: { errors, isSubmitting },
     reset,
     setValue,
-    watch
   } = useForm<CreateJobInput>({
     defaultValues: {
       name: '',

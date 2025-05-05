@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Terminal, ChevronRight, Briefcase, UserRound, SwitchCamera, Building2, ChevronDown } from 'lucide-react';
+import { LogOut, Menu, Settings, User as UserIcon, Sun, Moon, Briefcase, UserRound, Building2, ChevronDown } from 'lucide-react';
 import { UserAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -20,7 +20,7 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
   
   // Get company context if in employee mode
   const companyContext = isEmployeeMode ? useCompanyContext() : null;
-  const { companies = [], selectedCompany, setSelectedCompany, isLoading } = companyContext || {};
+  const { companies = [], selectedCompany, setSelectedCompany } = companyContext || {};
 
   const handleLogout = async () => {
     await signOut();
@@ -244,9 +244,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
               </div>
               <li>
                 <motion.a 
-                  className="flex items-center gap-2 px-2 py-2 hover:bg-base-200"
+                  className="flex items-center gap-2 px-2 py-2 hover:bg-primary/10"
                   onClick={() => navigate(`/${isEmployeeMode ? 'employee' : 'candidate'}/profile`)}
-                  whileHover={{ x: 2 }}
+                  whileHover={{ x: 3 }}
                 >
                   <UserIcon className="h-4 w-4 text-primary" />
                   <span>My Profile</span>
@@ -255,9 +255,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
               
               <li>
                 <motion.a 
-                  className="flex items-center gap-2 px-2 py-2 hover:bg-base-200" 
+                  className="flex items-center gap-2 px-2 py-2 hover:bg-primary/10" 
                   onClick={() => navigate(`/${isEmployeeMode ? 'employee' : 'candidate'}/settings`)}
-                  whileHover={{ x: 2 }}
+                  whileHover={{ x: 3 }}
                 >
                   <Settings className="h-4 w-4 text-primary" />
                   <span>Settings</span>
@@ -268,9 +268,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
               
               <li>
                 <motion.a 
-                  className="flex items-center gap-2 px-2 py-2 text-error hover:bg-error hover:bg-opacity-10"
+                  className="flex items-center gap-2 px-2 py-2 text-error hover:bg-error/10"
                   onClick={handleLogout}
-                  whileHover={{ x: 2 }}
+                  whileHover={{ x: 3 }}
                 >
                   <LogOut className="h-4 w-4" />
                   <span>Log out</span>

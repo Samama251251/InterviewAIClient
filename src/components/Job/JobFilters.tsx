@@ -35,12 +35,6 @@ const JobFilters: React.FC<JobFiltersProps> = ({
     tech.toLowerCase().includes(techSearchTerm.toLowerCase())
   );
 
-  // Clear role filter with propagation prevented
-  const handleClearRole = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onRoleChange(null);
-  };
-
   // Clear technology filter with propagation prevented
   const handleClearTech = (e: React.MouseEvent) => {
     e.stopPropagation();

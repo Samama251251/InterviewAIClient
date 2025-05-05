@@ -5,15 +5,17 @@ import { ArrowLeft, Clock, CheckCircle, AlertCircle, UserPlus, Filter, Upload } 
 import { Interview, InterviewRound } from '@/types/interview';
 import { useJobs } from '@/hooks/useJobs';
 import { useInterviews } from '@/hooks/useInterviews';
-import { format, parseISO } from 'date-fns';
 import AddCandidateModal from '@/components/Candidate/AddCandidateModal';
 import BulkUploadModal from '@/components/Candidate/BulkUploadModal';
 import ScreenCandidatesModal from '@/components/Candidate/ScreenCandidatesModal';
 import { screenCandidates } from '@/services/screenCandidates';
+import { useToast } from '@/hooks/useToast';
 
 const JobCandidatesPage: React.FC = () => {
   const { jobId = '' } = useParams<{ jobId: string }>();
   const navigate = useNavigate();  
+  const toast = useToast();
+  
   // Tab and modal states
   const [activeTab, setActiveTab] = useState('pending');
   const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
@@ -54,10 +56,19 @@ const JobCandidatesPage: React.FC = () => {
     );
   }, [jobInterviews]);
   
-  // Handle successful bulk upload
+  // Handle bulk upload success
   const handleBulkUploadSuccess = (result: { successful: number; failed: number; total: number }) => {
     // Refresh the interviews list
     getInterviews.refetch();
+    
+    // Show a success message
+    toast.success(`Successfully uploaded ${result.successful} candidates. ${result.failed > 0 ? `${result.failed} failed.` : ''}`);
+    
+    // Close the modal
+    setIsBulkUploadModalOpen(false);
+    
+    // Switch to pending tab to show the new candidates
+    setActiveTab('pending');
   };
   
   // Handle candidate screening
@@ -120,15 +131,6 @@ const JobCandidatesPage: React.FC = () => {
       </div>
     );
   }
-
-  const formatDateTime = (dateString: string, timeString: string) => {
-    try {
-      const date = parseISO(`${dateString}T${timeString}`);
-      return format(date, 'MMM d, yyyy h:mm a');
-    } catch (e) {
-      return `${dateString} ${timeString}`;
-    }
-  };
 
   const getScoreBadgeClass = (score?: number) => {
     if (!score) return 'badge-ghost';

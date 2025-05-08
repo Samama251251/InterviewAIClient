@@ -21,7 +21,7 @@ import { useState, useEffect } from 'react';
 import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
-
+import KnowledgeBasedInterview from "@/components/Voice/KnowledgeBasedInterview"
 function App() {
   // Theme state and toggle function
   const [theme, setTheme] = useState(() => {
@@ -50,6 +50,26 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          
+          {/* Knowledge-based interview route */}
+          <Route 
+            path="/knowledge" 
+            element={
+                <KnowledgeBasedInterview 
+                  resume={{
+                    experience: [],
+                    projects: [],
+                    skills: []
+                  }}
+                  role={{
+                    title: "Software Engineer",
+                    requirements: [],
+                    responsibilities: [], 
+                    technologies: []
+                  }}
+                />
+            } 
+          />
           
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 

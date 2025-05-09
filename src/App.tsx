@@ -111,6 +111,7 @@ function App() {
             <Route path="interviews" element={<CandidateInterviewsPage />} />
             <Route path="interviews/:interviewId" element={<CandidateInterviewDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="coding-problem" element={<CodingProblem />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

@@ -17,6 +17,7 @@ export const CodingProblem: React.FC = () => {
       const example = selectedProblem.examples[0];
       
       const response = await fetch('http://localhost:5000/api/submissions', {
+        credentials: 'include',
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,7 +27,6 @@ export const CodingProblem: React.FC = () => {
           language,
           input: example.input,
           output: example.output,
-          userId: '681b134dc1099d2a69261d6a', // Replace with actual user ID
         }),
       });
 
@@ -35,6 +35,7 @@ export const CodingProblem: React.FC = () => {
       // Poll for results
       const pollInterval = setInterval(async () => {
         const resultResponse = await fetch(`http://localhost:5000/api/submissions/${data.submissionId}`, {
+          credentials: 'include',
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

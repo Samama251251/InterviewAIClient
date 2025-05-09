@@ -14,10 +14,12 @@ import {
   ChevronUp,
   Play,
   Star,
-  TrendingUp
+  TrendingUp,
+  AlertTriangle
 } from "lucide-react";
 import { useInterviews } from "@/hooks/useInterviews";
 import { InterviewRound } from "@/types/interview";
+import InterviewConfirmationModal from "@/components/Interview/InterviewConfirmationModal";
 
 const RoundStatusIcon = ({ status }: { status?: string }) => {
   if (status === 'completed') {
@@ -34,6 +36,9 @@ const CandidateInterviewDetailPage = () => {
   
   // State to track which rounds are expanded
   const [expandedRounds, setExpandedRounds] = useState<number[]>([]);
+  // State for confirmation modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRoundIndex, setSelectedRoundIndex] = useState<number | null>(null);
 
   // Toggle round expansion
   const toggleRoundExpansion = (index: number) => {
@@ -131,9 +136,39 @@ const CandidateInterviewDetailPage = () => {
     return round.status || 'Unknown';
   };
 
-  // Navigate to take an interview round
-  const navigateToTakeRound = (roundIndex: number) => {
-    navigate(`/candidate/interviews/${interviewId}/rounds/${roundIndex}/take`);
+  // Show confirmation modal before starting a round
+  const showConfirmationModal = (roundIndex: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Opening modal for round:", roundIndex);
+    setSelectedRoundIndex(roundIndex);
+    
+    // Small delay to ensure event propagation is completely stopped
+    setTimeout(() => {
+      setIsModalOpen(true);
+      console.log("Modal state set to:", true);
+    }, 10);
+  };
+
+  // Navigate to take an interview round after confirmation
+  const navigateToTakeRound = () => {
+    if (selectedRoundIndex === null || !interview) return;
+
+    console.log("Navigating to round:", selectedRoundIndex);
+    
+    if (interview.rounds[selectedRoundIndex].type === 'SystemDesign') {
+      navigate(`/candidate/interviews/${interviewId}/rounds/${selectedRoundIndex}/systemdesign`);
+    } else {
+      navigate(`/candidate/interviews/${interviewId}/rounds/${selectedRoundIndex}/take`);
+    }
+    
+    setIsModalOpen(false);
+  };
+
+  // Close the modal
+  const closeModal = () => {
+    console.log("Closing modal");
+    setIsModalOpen(false);
   };
 
   if (isLoading) {
@@ -155,6 +190,9 @@ const CandidateInterviewDetailPage = () => {
     );
   }
 
+  // In the return statement, add a console log for the modal state
+  console.log("Rendering with isModalOpen:", isModalOpen);
+  
   return (
     <motion.div 
       className="p-4 md:p-6 space-y-6"
@@ -398,10 +436,19 @@ const CandidateInterviewDetailPage = () => {
 
                 {/* Quick action button (not part of the clickable area) */}
                 {!isRoundExpanded(index) && (
-                  <div className="mt-4" onClick={e => e.stopPropagation()}>
+                  <div 
+                    className="mt-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button 
                       className="btn btn-primary btn-sm"
-                      onClick={() => navigateToTakeRound(index)}
+                      onClick={(e) => {
+                        // Completely isolate the event
+                        if (e && e.stopPropagation) e.stopPropagation();
+                        if (e && e.preventDefault) e.preventDefault();
+                        showConfirmationModal(index, e);
+                        return false;
+                      }}
                     >
                       <Play className="w-4 h-4 mr-2" />
                       Take Interview
@@ -413,6 +460,13 @@ const CandidateInterviewDetailPage = () => {
           ))}
         </div>
       </motion.div>
+
+      {/* Use the new InterviewConfirmationModal component */}
+      <InterviewConfirmationModal 
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        onConfirm={navigateToTakeRound}
+      />
     </motion.div>
   );
 };

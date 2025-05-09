@@ -133,9 +133,18 @@ const CandidateInterviewDetailPage = () => {
 
   // Navigate to take an interview round
   const navigateToTakeRound = (roundIndex: number) => {
-    navigate(`/candidate/interviews/${interviewId}/rounds/${roundIndex}/take`);
+    if (!interview) return;
+    
+    const round = interview.rounds[roundIndex];
+    
+    if (round.type === 'KnowledgeBased') {
+      // Navigate to knowledge-based interview with jobId
+      const jobId = typeof interview.job_id === 'string' ? interview.job_id : interview.job_id._id;
+      navigate(`/knowledge-based?jobId=${jobId}`);
+    } else {
+      navigate(`/candidate/interviews/${interviewId}/rounds/${roundIndex}/take`);
+    }
   };
-
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">

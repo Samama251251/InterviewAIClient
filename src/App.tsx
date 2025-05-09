@@ -21,7 +21,7 @@ import { useState, useEffect } from 'react';
 import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
-import KnowledgeBasedInterview from "@/components/Voice/KnowledgeBasedInterview"
+import KnowledgeBasedInterviewPage from "@/pages/KnowledgeBasedInterviewPage"
 import { CodingProblem } from './pages/CodingProblem';
 
 // In your router configuration
@@ -58,21 +58,11 @@ function App() {
           
           {/* Knowledge-based interview route */}
           <Route 
-            path="/knowledge" 
+            path="/knowledge-based" 
             element={
-                <KnowledgeBasedInterview 
-                  resume={{
-                    experience: [],
-                    projects: [],
-                    skills: []
-                  }}
-                  role={{
-                    title: "Software Engineer",
-                    requirements: [],
-                    responsibilities: [], 
-                    technologies: []
-                  }}
-                />
+              <PrivateRoute>
+                <KnowledgeBasedInterviewPage />
+              </PrivateRoute>
             } 
           />
           

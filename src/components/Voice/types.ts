@@ -37,4 +37,5 @@ export interface ActiveCallDetailProps {
 export interface KnowledgeBasedInterviewProps {
   resume: Resume;
   role: Role;
+  frameworks: string[];
 } 

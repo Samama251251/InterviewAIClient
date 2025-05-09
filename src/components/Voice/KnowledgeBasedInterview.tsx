@@ -7,7 +7,7 @@ import ActiveCallDetail from './ActiveCallDetail';
 // Initialize Vapi with your key
 const vapi = new Vapi("10b7081e-70b3-472f-9c24-fc0ef584c46a");
 
-const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({ resume, role }) => {
+const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({ resume, role, frameworks }) => {
   const [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState(false);
   const [assistantIsSpeaking, setAssistantIsSpeaking] = useState(false);
@@ -15,6 +15,7 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({ resum
   const [interviewComplete, setInterviewComplete] = useState(false);
 
   // hook into Vapi events
+  console.log(resume, role, frameworks);
   useEffect(() => {
     vapi.on("call-start", () => {
       setConnecting(false);
@@ -67,12 +68,11 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({ resum
           {
             role: "system",
             content: `You are an expert technical interviewer conducting a knowledge-based interview. 
-            
-The candidate's resume information:
-${JSON.stringify(resume)}
-
 The role they are applying for:
 ${JSON.stringify(role)}
+
+Required frameworks and technologies:
+${JSON.stringify(frameworks)}
 
 Your task is to:
 1. Ask relevant technical questions based on their experience and the role requirements
@@ -88,6 +88,8 @@ Guidelines for questions:
 - Ask about specific technologies mentioned in their resume
 - Include scenario-based questions related to their experience
 - Ask about their problem-solving approach in past projects
+- Focus on the required frameworks and technologies for this role
+- Ask about their experience with the specific role requirements
 
 Keep your responses concise and focused. After each answer, provide brief feedback and move to the next question.
 If the candidate goes off-topic, politely guide them back to the question.

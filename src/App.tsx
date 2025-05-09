@@ -22,6 +22,10 @@ import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
 import KnowledgeBasedInterview from "@/components/Voice/KnowledgeBasedInterview"
+import { CodingProblem } from './pages/CodingProblem';
+
+// In your router configuration
+
 function App() {
   // Theme state and toggle function
   const [theme, setTheme] = useState(() => {
@@ -50,6 +54,7 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/coding-problem" element={<CodingProblem />} />
           
           {/* Knowledge-based interview route */}
           <Route 
@@ -106,6 +111,7 @@ function App() {
             <Route path="interviews" element={<CandidateInterviewsPage />} />
             <Route path="interviews/:interviewId" element={<CandidateInterviewDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="coding-problem" element={<CodingProblem />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

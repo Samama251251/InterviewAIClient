@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom"
 import { Landing } from "@/pages/Landing"
 import { NotFound } from "@/pages/NotFound"
 import { Login } from "@/pages/Login"
@@ -22,6 +22,8 @@ import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
 import KnowledgeBasedInterview from "@/components/Voice/KnowledgeBasedInterview"
+import axios from 'axios';
+
 function App() {
   // Theme state and toggle function
   const [theme, setTheme] = useState(() => {
@@ -54,21 +56,7 @@ function App() {
           {/* Knowledge-based interview route */}
           <Route 
             path="/knowledge" 
-            element={
-                <KnowledgeBasedInterview 
-                  resume={{
-                    experience: [],
-                    projects: [],
-                    skills: []
-                  }}
-                  role={{
-                    title: "Software Engineer",
-                    requirements: [],
-                    responsibilities: [], 
-                    technologies: []
-                  }}
-                />
-            } 
+            element={<KnowledgeBasedInterviewWrapper />} 
           />
           
           {/* Dashboard routes with Navbar and no Footer */}
@@ -114,5 +102,44 @@ function App() {
     </div>
   )
 }
+
+// Wrapper component to fetch job details and pass to KnowledgeBasedInterview
+const KnowledgeBasedInterviewWrapper = () => {
+  const location = useLocation();
+  const [job, setJob] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Extract jobId from query params
+  const searchParams = new URLSearchParams(location.search);
+  const jobId = searchParams.get('jobId');
+
+  useEffect(() => {
+    if (!jobId) return;
+    setLoading(true);
+    axios.get(`/api/jobs/${jobId}`)
+      .then(res => {
+        setJob(res.data.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError('Failed to fetch job details');
+        setLoading(false);
+      });
+  }, [jobId]);
+
+  if (!jobId) return <div className="p-8 text-center">No job selected.</div>;
+  if (loading) return <div className="p-8 text-center">Loading job details...</div>;
+  if (error || !job) return <div className="p-8 text-center text-error">{error || 'Job not found.'}</div>;
+
+  // Prepare role and frameworks for the interview component
+  const role = typeof job.role === 'string' ? { title: job.role, requirements: [], responsibilities: [], technologies: job.framework || [] } : job.role;
+  const frameworks = job.framework || [];
+
+  // You may want to fetch the candidate's resume here as well if needed
+  const resume = { experience: [], projects: [], skills: [] };
+
+  return <KnowledgeBasedInterview role={role} frameworks={frameworks} resume={resume} />;
+};
 
 export default App

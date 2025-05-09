@@ -401,7 +401,11 @@ const CandidateInterviewDetailPage = () => {
                   <div className="mt-4" onClick={e => e.stopPropagation()}>
                     <button 
                       className="btn btn-primary btn-sm"
-                      onClick={() => navigateToTakeRound(index)}
+                      onClick={() => {
+                        // Navigate to knowledge-based interview with jobId
+                        const jobId = typeof interview.job_id === 'string' ? interview.job_id : interview.job_id._id;
+                        navigate(`/knowledge?jobId=${jobId}`);
+                      }}
                     >
                       <Play className="w-4 h-4 mr-2" />
                       Take Interview

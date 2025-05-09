@@ -34,7 +34,7 @@ export const CodingProblem: React.FC = () => {
       
       // Poll for results
       const pollInterval = setInterval(async () => {
-        const resultResponse = await fetch(`http://localhost:5000api/submissions/${data.submissionId}`, {
+        const resultResponse = await fetch(`http://localhost:5000/api/submissions/${data.submissionId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

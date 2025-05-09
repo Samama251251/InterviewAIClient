@@ -14,8 +14,7 @@ import {
   ChevronUp,
   Play,
   Star,
-  TrendingUp,
-  AlertTriangle
+  TrendingUp
 } from "lucide-react";
 import { useInterviews } from "@/hooks/useInterviews";
 import { InterviewRound } from "@/types/interview";

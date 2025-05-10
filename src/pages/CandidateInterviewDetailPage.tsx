@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { 
@@ -14,11 +14,16 @@ import {
   ChevronUp,
   Play,
   Star,
-  TrendingUp
+  TrendingUp,
+  Upload,
+  FileText
 } from "lucide-react";
 import { useInterviews } from "@/hooks/useInterviews";
 import { InterviewRound } from "@/types/interview";
 import InterviewConfirmationModal from "@/components/Interview/InterviewConfirmationModal";
+import axios from "axios";
+import { useToast } from "@/hooks/useToast";
+import { CVResponse } from "@/types/cv";
 
 const RoundStatusIcon = ({ status }: { status?: string }) => {
   if (status === 'completed') {
@@ -32,12 +37,18 @@ const RoundStatusIcon = ({ status }: { status?: string }) => {
 const CandidateInterviewDetailPage = () => {
   const { interviewId } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
+  const { success, error: showError, warning } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // State to track which rounds are expanded
   const [expandedRounds, setExpandedRounds] = useState<number[]>([]);
   // State for confirmation modal
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRoundIndex, setSelectedRoundIndex] = useState<number | null>(null);
+  // CV upload states
+  const [isUploading, setIsUploading] = useState(false);
+  const [isLoadingCv, setIsLoadingCv] = useState(false);
+  const [cvData, setCvData] = useState<{url?: string, parsedText?: string | null}>({});
 
   // Toggle round expansion
   const toggleRoundExpansion = (index: number) => {
@@ -53,7 +64,36 @@ const CandidateInterviewDetailPage = () => {
 
   // Fetch the specific interview
   const { getInterviewById } = useInterviews();
-  const { data: interview, isLoading, isError } = getInterviewById(interviewId || "");
+  const { data: interview, isLoading, isError, refetch } = getInterviewById(interviewId || "");
+
+  // Check if there's already a CV uploaded
+  useEffect(() => {
+    if (interviewId) {
+      fetchExistingCv();
+    }
+  }, [interviewId]);
+
+  // Fetch existing CV
+  const fetchExistingCv = async () => {
+    try {
+      setIsLoadingCv(true);
+      const response = await axios.get<{status: string, data: CVResponse}>(`/api/cv/${interviewId}`);
+      
+      if (response.data.status === 'success' && response.data.data.cvUrl) {
+        setCvData({
+          url: response.data.data.cvUrl,
+          parsedText: response.data.data.parsedCv
+        });
+      }
+    } catch (error) {
+      // If it's a 404, it means no CV is uploaded yet (not an error)
+      if (axios.isAxiosError(error) && error.response?.status !== 404) {
+        console.error('Error fetching CV:', error);
+      }
+    } finally {
+      setIsLoadingCv(false);
+    }
+  };
 
   // Get job and company information
   const jobDetails = useMemo(() => {
@@ -174,6 +214,73 @@ const CandidateInterviewDetailPage = () => {
   const closeModal = () => {
     console.log("Closing modal");
     setIsModalOpen(false);
+  };
+
+  // Handle CV file selection
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Only allow PDF files
+    if (file.type !== 'application/pdf') {
+      showError("Please upload a PDF file.");
+      return;
+    }
+    
+    try {
+      setIsUploading(true);
+      
+      // Convert file to base64
+      const base64 = await fileToBase64(file);
+      
+      // Upload to server
+      const response = await axios.post('/api/cv/upload', {
+        interviewId,
+        cvBase64: base64
+      });
+      
+      if (response.data.status === 'success' || response.data.status === 'partial_success') {
+        setCvData({
+          url: response.data.data.cvUrl,
+          parsedText: response.data.data.parsedCv
+        });
+        
+        if (response.data.status === 'partial_success') {
+          warning("Your CV was uploaded but could not be parsed. You may need to try again later.");
+        } else {
+          success("Your CV was uploaded and parsed successfully.");
+        }
+        
+        // Refresh interview data
+        refetch();
+      }
+    } catch (error) {
+      console.error('Error uploading CV:', error);
+      showError("There was an error uploading your CV. Please try again.");
+    } finally {
+      setIsUploading(false);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+  
+  // Convert file to base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+  
+  // Trigger file input click
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
   };
 
   if (isLoading) {
@@ -324,6 +431,78 @@ const CandidateInterviewDetailPage = () => {
               </div>
             </div>
           )}
+        </div>
+      </motion.div>
+
+      {/* CV Upload Section */}
+      <motion.div variants={itemVariants} className="card bg-base-100 shadow-sm border border-base-300">
+        <div className="card-body">
+          <h2 className="card-title flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Resume / CV
+          </h2>
+          
+          {isLoadingCv ? (
+            <div className="flex justify-center items-center p-10">
+              <span className="loading loading-spinner loading-md text-primary"></span>
+            </div>
+          ) : cvData.url ? (
+            <div className="mt-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-success" />
+                  <span>CV uploaded successfully</span>
+                </div>
+                <button 
+                  className="btn btn-ghost btn-sm"
+                  onClick={triggerFileInput}
+                >
+                  <Upload className="w-4 h-4 mr-1" />
+                  Replace
+                </button>
+              </div>
+              
+              {cvData.parsedText && (
+                <div className="border-t pt-4 mt-4">
+                  <div className="text-sm font-medium mb-2">Extracted Information:</div>
+                  <div className="bg-base-200 p-4 rounded-md max-h-40 overflow-y-auto">
+                    <pre className="whitespace-pre-wrap text-sm">{cvData.parsedText}</pre>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-4">
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-base-300 rounded-lg p-6 cursor-pointer hover:bg-base-200 transition-colors" onClick={triggerFileInput}>
+                <Upload className="w-8 h-8 mb-2 text-primary" />
+                <p className="text-center">
+                  Upload your resume/CV to enhance your interview experience
+                </p>
+                <p className="text-center text-sm text-base-content/60 mt-1">
+                  Supported format: PDF
+                </p>
+                <button className="btn btn-primary btn-sm mt-4" disabled={isUploading}>
+                  {isUploading ? (
+                    <>
+                      <span className="loading loading-spinner loading-xs"></span>
+                      Uploading...
+                    </>
+                  ) : (
+                    <>Select File</>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+          
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            className="hidden" 
+            accept="application/pdf" 
+            onChange={handleFileChange}
+            disabled={isUploading}
+          />
         </div>
       </motion.div>
 

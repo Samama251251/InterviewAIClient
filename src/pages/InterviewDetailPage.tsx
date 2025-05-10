@@ -1,16 +1,66 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, Star, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, Star, ChevronRight, CheckCircle } from 'lucide-react';
 import { useInterviews } from '@/hooks/useInterviews';
 import { RoundType } from '@/types/job';
+import api from '@/services/api';
+import { useToast } from '@/hooks/useToast';
+import { FinalEvaluationResponse } from '@/types/interview';
 
 const InterviewDetailPage: React.FC = () => {
   const { interviewId = '' } = useParams<{ interviewId: string }>();
   const navigate = useNavigate();
+  const { success, error: showError } = useToast();
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  
   // Use useInterviews hook to fetch interview details
   const { getInterviewById } = useInterviews();
   const { data: interview, isLoading, error } = getInterviewById(interviewId);
+  
+  // Check if all rounds are completed
+  const { needsEvaluation } = useMemo(() => {
+    if (!interview) return { allRoundsCompleted: false, hasCV: false, needsEvaluation: false };
+    
+    const allCompleted = interview.rounds.length > 0 && 
+                         interview.rounds.every(round => round.status === 'completed');
+    const hasCV = !!interview.cv_url;
+    const needsFinalEval = allCompleted && hasCV && interview.status !== 'completed' && !interview.score;
+    
+    return { 
+      allRoundsCompleted: allCompleted,
+      hasCV: hasCV,
+      needsEvaluation: needsFinalEval
+    };
+  }, [interview]);
+
+  // Automatically evaluate the interview if needed
+  useEffect(() => {
+    if (needsEvaluation && !isEvaluating) {
+      evaluateInterview();
+    }
+  }, [needsEvaluation]);
+
+  // Function to evaluate the interview
+  const evaluateInterview = async () => {
+    if (!interview || isEvaluating) return;
+    
+    try {
+      setIsEvaluating(true);
+      const response = await api.put<FinalEvaluationResponse>(
+        `/interviews/${interviewId}/evaluate-final`
+      );
+      
+      if (response.data.status === 'success') {
+        success('Interview evaluation completed successfully');
+      }
+    } catch (err) {
+      console.error('Error evaluating interview:', err);
+      showError('Failed to evaluate interview. Please try again later.');
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
   
   // Get job and candidate info from the interview
   const jobInfo = useMemo(() => {
@@ -277,6 +327,78 @@ const InterviewDetailPage: React.FC = () => {
           )}
         </div>
       </motion.div>
+
+      {/* Final Evaluation Card - Show when all rounds completed */}
+      {interview && interview.score && (
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 mt-4"
+          initial={{ opacity: 1, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+        >
+          <div className="card-body">
+            <div className="border-b border-base-300 pb-4 mb-4">
+              <h2 className="card-title flex items-center gap-2">
+                <Award className="h-5 w-5 text-primary" />
+                Final Evaluation
+              </h2>
+            </div>
+            
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-lg font-medium">Final Score:</span>
+                <div className="badge badge-lg badge-primary">{interview.score}/100</div>
+              </div>
+              
+              {interview.remarks && (
+                <div className="mt-2">
+                  <div className="text-sm font-medium mb-2">Evaluation Remarks:</div>
+                  <div className="bg-base-200 p-4 rounded-md">
+                    <p className="whitespace-pre-wrap">{interview.remarks}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+      
+      {/* Show evaluation button if needed */}
+      {needsEvaluation && (
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 mt-4"
+          initial={{ opacity: 1, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+        >
+          <div className="card-body">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-medium">All rounds completed!</h3>
+                <p className="text-base-content/70">Ready for final evaluation</p>
+              </div>
+              
+              <button 
+                className="btn btn-primary" 
+                onClick={evaluateInterview}
+                disabled={isEvaluating}
+              >
+                {isEvaluating ? (
+                  <>
+                    <span className="loading loading-spinner loading-xs"></span>
+                    Evaluating...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Evaluate Interview
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };

@@ -26,19 +26,26 @@ export const useInterviews = () => {
   });
 
   // Get interview by ID
-  const getInterviewById = (id: string) => useQuery({
-    queryKey: [INTERVIEWS, id],
-    queryFn: async (): Promise<Interview> => {
-      try {
-        const response = await api.get<InterviewResponse>(`/interviews/${id}`);
-        return response.data.data;
-      } catch (error) {
-        toast.error('Failed to fetch interview details');
-        throw error;
-      }
-    },
-    enabled: !!id, // Only run if ID is provided
-  });
+  const getInterviewById = (id: string) => {
+    const query = useQuery({
+      queryKey: [INTERVIEWS, id],
+      queryFn: async (): Promise<Interview> => {
+        try {
+          const response = await api.get<InterviewResponse>(`/interviews/${id}`);
+          return response.data.data;
+        } catch (error) {
+          toast.error('Failed to fetch interview details');
+          throw error;
+        }
+      },
+      enabled: !!id, // Only run if ID is provided
+    });
+    
+    return {
+      ...query,
+      refetch: query.refetch
+    };
+  };
 
   // Create a new interview
   const createInterview = useMutation({

@@ -23,8 +23,12 @@ export interface Interview {
   job_id: string | JobReference;
   user_id: string | User;
   role?: 'interviewee' | 'interviewer'; // Role field in response according to API docs
-  status?: 'pending' | 'completed' | string; // Status of the interview
+  status?: 'pending' | 'completed'; // Status of the interview
   rounds: InterviewRound[]; // Interview rounds data - not optional based on API spec
+  cv_url?: string; // URL to candidate's CV
+  parsed_cv?: string; // Parsed text from candidate's CV
+  score?: number; // Final interview score
+  remarks?: string; // Final interview remarks
 }
 
 export interface CreateInterviewInput {
@@ -33,11 +37,19 @@ export interface CreateInterviewInput {
 }
 
 export interface UpdateInterviewInput {
-  status?: 'pending' | 'completed' | string;
+  status?: 'pending' | 'in_progress' | 'completed' | string;
 }
 
 export interface UpdateInterviewRoundsInput {
   rounds: InterviewRound[];
+}
+
+export interface FinalEvaluationResponse {
+  status: string;
+  data: {
+    score: number;
+    remarks: string;
+  };
 }
 
 export interface InterviewResponse {

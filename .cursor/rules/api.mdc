@@ -744,7 +744,6 @@ Assume the base URL for all endpoints is `/api`.
 
 ---
 
-<<<<<<< HEAD
 ## System Design Routes (`/system-design`)
 
 ### GET /system-design
@@ -814,8 +813,6 @@ Assume the base URL for all endpoints is `/api`.
 
 ---
 
-=======
->>>>>>> main
 ## User Routes (`/users`)
 
 ### GET /users/email/:email

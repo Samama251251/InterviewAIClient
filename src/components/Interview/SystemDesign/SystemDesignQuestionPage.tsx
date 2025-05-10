@@ -50,7 +50,7 @@ const SystemDesignQuestionPage = forwardRef<SystemDesignQuestionPageRef, SystemD
   const [textAnswer, setTextAnswer] = useState(initialData?.textAnswer || '');
   const excalidrawRef = useRef<any>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  const [panelWidth, setPanelWidth] = useState(33); // Width as percentage
+  const [panelWidth] = useState(33); // Width as percentage
   const [localDrawingData, setLocalDrawingData] = useState<any>(initialData?.drawingData || null);
 
   // Save the current drawing

@@ -50,12 +50,6 @@ const InterviewConfirmationModal: React.FC<InterviewConfirmationModalProps> = ({
       id="interview_confirmation_modal" 
       className="modal modal-bottom sm:modal-middle" 
       ref={modalRef}
-      onClick={(e) => {
-        // Close if clicking on the backdrop
-        if (e.target === modalRef.current) {
-          onClose();
-        }
-      }}
     >
       <div className="modal-box max-w-md">
         <h3 className="font-bold text-lg flex items-center">

@@ -22,6 +22,8 @@ import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
 import SystemDesign from "@/pages/SystemDesign"
+import KnowledgeBasedInterviewPage from "@/pages/KnowledgeBasedInterviewPage"
+import { CodingProblem } from './pages/CodingProblem';
 
 function App() {
   // Theme state and toggle function
@@ -51,6 +53,16 @@ function App() {
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/coding-problem" element={<CodingProblem />} />
+          
+          <Route 
+            path="/knowledge-based" 
+            element={
+              <PrivateRoute>
+                <KnowledgeBasedInterviewPage />
+              </PrivateRoute>
+            } 
+          />
           
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 
@@ -97,8 +109,15 @@ function App() {
             </PrivateRoute>
           } />
 
-          <Route path="/excalidraw" element={<SystemDesign />} />
+            <Route path="/candidate/interviews/:interviewId/rounds/:roundIndex/knowledgebased" element={
+            <PrivateRoute>
+              <KnowledgeBasedInterviewPage />
+            </PrivateRoute>
+          } />
 
+          <Route path="/excalidraw" element={<SystemDesign />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="coding-problem" element={<CodingProblem />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

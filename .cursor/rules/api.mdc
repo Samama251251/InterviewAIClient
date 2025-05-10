@@ -80,6 +80,7 @@ Below are the data models used throughout the API:
 }
 ```
 
+<<<<<<< HEAD
 ### System Design Models
 
 ```json
@@ -97,6 +98,8 @@ Below are the data models used throughout the API:
 }
 ```
 
+=======
+>>>>>>> main
 ## Authentication
 
 All protected routes require an `Authorization` header with a bearer token:
@@ -741,6 +744,7 @@ Assume the base URL for all endpoints is `/api`.
 
 ---
 
+<<<<<<< HEAD
 ## System Design Routes (`/system-design`)
 
 ### GET /system-design
@@ -810,6 +814,8 @@ Assume the base URL for all endpoints is `/api`.
 
 ---
 
+=======
+>>>>>>> main
 ## User Routes (`/users`)
 
 ### GET /users/email/:email

@@ -151,16 +151,22 @@ const CandidateInterviewDetailPage = () => {
 
   // Navigate to take an interview round after confirmation
   const navigateToTakeRound = () => {
+    console.log("Here")
+
     if (selectedRoundIndex === null || !interview) return;
 
-    console.log("Navigating to round:", selectedRoundIndex);
-    
-    if (interview.rounds[selectedRoundIndex].type === 'SystemDesign') {
+    const round = interview.rounds[selectedRoundIndex];
+
+    if (round.type === 'SystemDesign') {
+      console.log("SYs")
       navigate(`/candidate/interviews/${interviewId}/rounds/${selectedRoundIndex}/systemdesign`);
+    } else if (round.type === 'KnowledgeBased') {
+      console.log("KnowledgeBased")
+      navigate(`/candidate/interviews/${interviewId}/rounds/${selectedRoundIndex}/knowledgebased`);
     } else {
+      console.log("Take")
       navigate(`/candidate/interviews/${interviewId}/rounds/${selectedRoundIndex}/take`);
     }
-    
     setIsModalOpen(false);
   };
 
@@ -191,7 +197,6 @@ const CandidateInterviewDetailPage = () => {
 
   // In the return statement, add a console log for the modal state
   console.log("Rendering with isModalOpen:", isModalOpen);
-  
   return (
     <motion.div 
       className="p-4 md:p-6 space-y-6"

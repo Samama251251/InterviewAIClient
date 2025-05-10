@@ -28,15 +28,12 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, theme, toggleTheme, si
   };
 
   // Handle mode switch
-  const handleModeSwitch = () => {
-    // Get current path without the prefix
-    const currentPath = location.pathname.replace(/^\/employee|\/candidate/, '');
-    
+  const handleModeSwitch = () => {    
     // Navigate to the other mode with the same path
     if (isEmployeeMode) {
-      navigate(`/candidate${currentPath}`);
+      navigate(`/candidate`);
     } else {
-      navigate(`/employee${currentPath}`);
+      navigate(`/employee`);
     }
   };
 

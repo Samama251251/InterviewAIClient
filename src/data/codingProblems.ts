@@ -179,7 +179,7 @@ A string is palindromic if it reads the same forward and backward.`,
     examples: [
       {
         input: "s = \"babad\"",
-        output: "\"bab\"",
+        output: "bab",
         explanation: "\"aba\" is also a valid answer."
       },
       {

@@ -605,7 +605,6 @@ const CandidateInterviewDetailPage = () => {
           ))}
         </div>
       </motion.div>
-
       {/* Confirmation Modal */}
       <InterviewConfirmationModal 
         isOpen={isModalOpen}

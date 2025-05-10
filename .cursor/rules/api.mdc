@@ -80,6 +80,26 @@ Below are the data models used throughout the API:
 }
 ```
 
+<<<<<<< HEAD
+### System Design Models
+
+```json
+{
+  "SystemDesignQuestion": {
+    "question": "string",
+    "difficulty": "string"
+  },
+  
+  "SystemDesignSubmission": {
+    "question": "SystemDesignQuestion",
+    "answer": "string",
+    "designed_system_image_base64": "string"
+  }
+}
+```
+
+=======
+>>>>>>> main
 ## Authentication
 
 All protected routes require an `Authorization` header with a bearer token:
@@ -724,6 +744,78 @@ Assume the base URL for all endpoints is `/api`.
 
 ---
 
+<<<<<<< HEAD
+## System Design Routes (`/system-design`)
+
+### GET /system-design
+
+*   **Description**: Retrieves a list of system design questions.
+*   **Access**: Private (Authenticated User)
+*   **Query Parameters**:
+    *   `limit`: Number (optional) - Limits the number of questions returned (default: 5)
+*   **Success Response**: `200 OK`
+    ```json
+    {
+      "status": "success",
+      "data": [
+        {
+          "question": "Design a scalable URL shortening service like TinyURL or Bitly.",
+          "difficulty": "Medium"
+        },
+        {
+          "question": "Design a distributed file storage system like Google Drive or Dropbox.",
+          "difficulty": "Hard"
+        }
+        // Additional questions based on limit parameter
+      ]
+    }
+    ```
+*   **Error Responses**:
+    *   `400 Bad Request` (e.g., `Limit is greater than the number of questions`)
+    *   `500 Internal Server Error` (e.g., `Failed to fetch system design questions`)
+
+### POST /system-design
+
+*   **Description**: Submits a system design solution for evaluation and updates the corresponding interview round with results.
+*   **Access**: Private (Authenticated User)
+*   **Request Body**:
+    ```json
+    {
+      "interviewId": "string (required, ObjectId referencing Interview)",
+      "submissions": [
+        {
+          "question": {
+            "question": "string",
+            "difficulty": "string"
+          },
+          "answer": "string",
+          "designed_system_image_base64": "string"
+        }
+      ]
+    }
+    ```
+*   **Success Response**: `200 OK`
+    ```json
+    {
+      "status": "success",
+      "message": "System design submitted and evaluated successfully"
+    }
+    ```
+*   **Error Responses**:
+    *   `400 Bad Request` (e.g., `Invalid interview ID`)
+    *   `404 Not Found` (e.g., `Interview not found`, `SystemDesign round not found in this interview`)
+    *   `500 Internal Server Error` (e.g., `Failed to process system design submission`)
+
+*   **Process**:
+    1. Uploads the system design diagrams to Cloudinary
+    2. Sends the submission to the AI service for evaluation
+    3. Updates the SystemDesign round of the specified interview with the evaluation score and feedback
+    4. Marks the round as completed
+
+---
+
+=======
+>>>>>>> main
 ## User Routes (`/users`)
 
 ### GET /users/email/:email

@@ -1,53 +1,51 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { useInterviews } from '@/hooks/useInterviews';
+import { useJobs } from '@/hooks/useJobs';
 import KnowledgeBasedInterview from '@/components/Voice/KnowledgeBasedInterview';
 
 const KnowledgeBasedInterviewPage = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [job, setJob] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { interviewId, roundIndex } = useParams<{ interviewId: string, roundIndex: string }>();
+  
+  // Get interview data
+  const { getInterviewById } = useInterviews();
+  const { data: interview, isLoading: isInterviewLoading, isError: isInterviewError } = 
+    getInterviewById(interviewId || '');
+  
+  // Get job data
+  const { getJobById } = useJobs();
+  const jobId = typeof interview?.job_id === 'object' ? interview.job_id._id : interview?.job_id;
+  const { data: job, isLoading: isJobLoading, isError: isJobError } = 
+    getJobById(jobId || '');
 
-  // Extract jobId from query params
-  const searchParams = new URLSearchParams(location.search);
-  const jobId = searchParams.get('jobId');
+  const [error, setError] = useState<string | null>(null);
+  
+  // Find the round
+  const round = interview?.rounds?.[Number(roundIndex)];
 
   useEffect(() => {
-    if (!jobId) {
-      navigate('/candidate/interviews');
-      return;
+    if (!interviewId || !roundIndex) {
+      setError('Interview ID or round index missing.');
+    } else if (!interview || !round) {
+      setError('Interview or round not found.');
     }
+  }, [interviewId, roundIndex, interview, round]);
 
-    setLoading(true);
-    axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
-      withCredentials: true
-    })
-      .then(res => {
-        setJob(res.data.data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching job details:', err);
-        setError('Failed to fetch job details');
-        setLoading(false);
-      });
-  }, [jobId, navigate]);
+  const isLoading = isInterviewLoading || isJobLoading;
+  const isError = isInterviewError || isJobError;
 
-  if (!jobId) return <div className="p-8 text-center">No job selected.</div>;
-  if (loading) return <div className="p-8 text-center">Loading job details...</div>;
-  if (error || !job) return <div className="p-8 text-center text-error">{error || 'Job not found.'}</div>;
+  if (isLoading) return <div className="p-8 text-center">Loading interview...</div>;
+  if (isError || error || !interview || !round || !job) 
+    return <div className="p-8 text-center text-error">{error || 'Interview or round not found.'}</div>;
 
   const role = {
     title: job.role,
-    requirements: job.requirements || [],
-    responsibilities: job.responsibilities || [],
+    requirements: job.description ? [job.description] : [],
+    responsibilities: [],
     technologies: job.framework || []
   };
 
   const frameworks = job.framework || [];
-
   const resume = { experience: [], projects: [], skills: [] };
 
   return (

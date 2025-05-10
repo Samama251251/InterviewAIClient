@@ -21,9 +21,10 @@ import { useState, useEffect } from 'react';
 import { CompanyProvider } from '@/contexts/CompanyContext';
 import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
-import SystemDesign from "@/pages/SystemDesign"
 import KnowledgeBasedInterviewPage from "@/pages/KnowledgeBasedInterviewPage"
 import { CodingProblem } from './pages/CodingProblem';
+
+// In your router configuration
 
 function App() {
   // Theme state and toggle function
@@ -55,6 +56,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/coding-problem" element={<CodingProblem />} />
           
+          {/* Knowledge-based interview route */}
           <Route 
             path="/knowledge-based" 
             element={
@@ -98,26 +100,10 @@ function App() {
             <Route index element={<IntervieweeDashboard />} />
             <Route path="interviews" element={<CandidateInterviewsPage />} />
             <Route path="interviews/:interviewId" element={<CandidateInterviewDetailPage />} />
-            <Route path="interviews/:interviewId/systemdesign" element={<SystemDesign />} />
             <Route path="settings" element={<SettingsPage />} />
+            <Route path="coding-problem" element={<CodingProblem />} />
           </Route>
-          
-          {/* Full screen routes without dashboard layout */}
-          <Route path="/candidate/interviews/:interviewId/rounds/:roundIndex/systemdesign" element={
-            <PrivateRoute>
-              <SystemDesign fullScreen={true} />
-            </PrivateRoute>
-          } />
 
-            <Route path="/candidate/interviews/:interviewId/rounds/:roundIndex/knowledgebased" element={
-            <PrivateRoute>
-              <KnowledgeBasedInterviewPage />
-            </PrivateRoute>
-          } />
-
-          <Route path="/excalidraw" element={<SystemDesign />} />
-          <Route path="settings" element={<SettingsPage />} />
-          <Route path="coding-problem" element={<CodingProblem />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

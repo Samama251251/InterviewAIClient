@@ -1,19 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CodeEditor } from '../components/CodeEditor';
 import { codingProblems } from '../data/codingProblems';
 import { LoadingOverlay } from '../components/common/LoadingOverlay';
 import { ResultPanel } from '../components/common/ResultPanel';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import axios from 'axios';
 
 export const CodingProblem: React.FC = () => {
-  const [selectedProblem] = useState(codingProblems[1]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchParams = new URLSearchParams(location.search);
+  const interviewId = searchParams.get('interviewId');
+  const roundIndex = searchParams.get('roundIndex');
+
+  // Get problems based on difficulty
+  const easyProblems = codingProblems.filter(p => p.difficulty === 'easy');
+  const mediumProblems = codingProblems.filter(p => p.difficulty === 'medium');
+  const hardProblems = codingProblems.filter(p => p.difficulty === 'hard');
+
+  // Select one problem from each difficulty
+  const [selectedProblems] = useState(() => [
+    easyProblems[Math.floor(Math.random() * easyProblems.length)],
+    mediumProblems[Math.floor(Math.random() * mediumProblems.length)],
+    hardProblems[Math.floor(Math.random() * hardProblems.length)]
+  ]);
+
+  const [currentProblemIndex, setCurrentProblemIndex] = useState(0);
   const [language, setLanguage] = useState<'javascript' | 'python'>('javascript');
-  const [code, setCode] = useState(selectedProblem.starterCode[language]);
+  const [code, setCode] = useState(selectedProblems[0].starterCode[language]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [result, setResult] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
   const [timedOut, setTimedOut] = useState(false);
+  const [scores, setScores] = useState<number[]>([]);
+  const [completedProblems, setCompletedProblems] = useState<boolean[]>([]);
+
+  useEffect(() => {
+    if (!interviewId || !roundIndex) {
+      navigate('/candidate/interviews');
+      return;
+    }
+  }, [interviewId, roundIndex, navigate]);
+
+  const updateInterviewRound = async (score: number) => {
+    try {
+      const response = await axios.put(`http://localhost:5000/api/interviews/${interviewId}/rounds`, {
+        rounds: [{
+          type: 'Coding',
+          score: score,
+          status: 'completed',
+          remarks: `Completed ${completedProblems.filter(Boolean).length + 1}/3 problems`
+        }]
+      }, {
+        withCredentials: true
+      });
+
+      if (response.data.status === 'success') {
+        toast.success('Interview round updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating interview round:', error);
+      toast.error('Failed to update interview round');
+    }
+  };
 
   const handleSubmit = async () => {
     setError(null);
@@ -21,43 +72,60 @@ export const CodingProblem: React.FC = () => {
     setTimedOut(false);
     try {
       setIsSubmitting(true);
-      // Get the first example input and output
-      const example = selectedProblem.examples[0];
-      const response = await fetch('http://localhost:5000/api/submissions', {
-        credentials: 'include',
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code,
-          language,
-          input: example.input,
-          output: example.output,
-        }),
+      const example = selectedProblems[currentProblemIndex].examples[0];
+      const response = await axios.post('http://localhost:5000/api/submissions', {
+        code,
+        language,
+        input: example.input,
+        output: example.output,
+      }, {
+        withCredentials: true
       });
-      if (!response.ok) throw new Error('Failed to submit code');
-      const data = await response.json();
-      // Poll for results
+      
+      if (!response.data) throw new Error('Failed to submit code');
+      const data = response.data;
+      
       const pollInterval = setInterval(async () => {
         try {
-          const resultResponse = await fetch(`http://localhost:5000/api/submissions/${data.submissionId}`, {
-            credentials: 'include',
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+          const resultResponse = await axios.get(`http://localhost:5000/api/submissions/${data.submissionId}`, {
+            withCredentials: true
           });
-          if (!resultResponse.ok) throw new Error('Failed to fetch result');
-          const resultData = await resultResponse.json();
+          
+          if (!resultResponse.data) throw new Error('Failed to fetch result');
+          const resultData = resultResponse.data;
           if (resultData.status === 'completed' || resultData.status === 'failed') {
             clearInterval(pollInterval);
             setResult(resultData);
             setIsSubmitting(false);
-            // Show toast based on result
+            
             if (resultData.result && typeof resultData.result.isCorrect !== 'undefined') {
               if (resultData.result.isCorrect) {
                 toast.success('🎉 Correct! Your code passed the test case.');
+                const newScores = [...scores];
+                newScores[currentProblemIndex] = 100;
+                setScores(newScores);
+                
+                const newCompletedProblems = [...completedProblems];
+                newCompletedProblems[currentProblemIndex] = true;
+                setCompletedProblems(newCompletedProblems);
+
+                // Calculate average score
+                const averageScore = Math.round(newScores.reduce((a, b) => a + b, 0) / newScores.length);
+                
+                // Update interview round with score
+                await updateInterviewRound(averageScore);
+
+                // Move to next problem or finish interview
+                if (currentProblemIndex < selectedProblems.length - 1) {
+                  setTimeout(() => {
+                    setCurrentProblemIndex(prev => prev + 1);
+                    setCode(selectedProblems[currentProblemIndex + 1].starterCode[language]);
+                  }, 2000);
+                } else {
+                  setTimeout(() => {
+                    navigate('/candidate/interviews');
+                  }, 2000);
+                }
               } else {
                 toast.error('❌ Incorrect. Your code did not pass the test case.');
               }
@@ -77,12 +145,38 @@ export const CodingProblem: React.FC = () => {
     }
   };
 
+  const handleSkip = () => {
+    const newScores = [...scores];
+    newScores[currentProblemIndex] = 0;
+    setScores(newScores);
+    
+    const newCompletedProblems = [...completedProblems];
+    newCompletedProblems[currentProblemIndex] = true;
+    setCompletedProblems(newCompletedProblems);
+
+    // Calculate average score
+    const averageScore = Math.round(newScores.reduce((a, b) => a + b, 0) / newScores.length);
+    
+    // Update interview round with score
+    updateInterviewRound(averageScore);
+
+    // Move to next problem or finish interview
+    if (currentProblemIndex < selectedProblems.length - 1) {
+      setCurrentProblemIndex(prev => prev + 1);
+      setCode(selectedProblems[currentProblemIndex + 1].starterCode[language]);
+    } else {
+      navigate('/candidate/interviews');
+    }
+  };
+
   const handleRetry = () => {
     setError(null);
     setResult(null);
     setTimedOut(false);
     handleSubmit();
   };
+
+  const currentProblem = selectedProblems[currentProblemIndex];
 
   return (
     <div className="min-h-screen bg-base-100">
@@ -93,18 +187,20 @@ export const CodingProblem: React.FC = () => {
             <div className="relative h-full">
               <div className="bg-base-200 rounded-2xl shadow-xl border-l-8 border-primary h-full flex flex-col p-8">
                 <div className="flex items-center justify-between mb-2">
-                  <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-tight">{selectedProblem.title}</h1>
+                  <h1 className="text-3xl font-extrabold text-primary tracking-tight leading-tight">
+                    Problem {currentProblemIndex + 1} of 3
+                  </h1>
                   <span className={`badge badge-lg text-base-100 ${
-                    selectedProblem.difficulty === 'easy' ? 'badge-success' :
-                    selectedProblem.difficulty === 'medium' ? 'badge-warning' :
+                    currentProblem.difficulty === 'easy' ? 'badge-success' :
+                    currentProblem.difficulty === 'medium' ? 'badge-warning' :
                     'badge-error'
                   }`}>
-                    {selectedProblem.difficulty}
+                    {currentProblem.difficulty}
                   </span>
                 </div>
                 <h2 className="text-lg font-bold text-base-content/90 mt-4 mb-2">Description</h2>
                 <div className="prose prose-sm lg:prose-base max-w-none text-base-content/90 leading-relaxed">
-                  {selectedProblem.description.split(/(\d+\.)/g).map((part, idx) =>
+                  {currentProblem.description.split(/(\d+\.)/g).map((part, idx) =>
                     /^\d+\.$/.test(part) ? (
                       <span key={idx} className="block font-semibold text-primary mt-2">{part}</span>
                     ) : (
@@ -114,7 +210,7 @@ export const CodingProblem: React.FC = () => {
                 </div>
                 <h2 className="text-lg font-bold text-primary mt-6 mb-3">Examples</h2>
                 <div className="flex flex-col gap-4">
-                  {selectedProblem.examples.map((example, index) => (
+                  {currentProblem.examples.map((example, index) => (
                     <motion.div
                       key={index}
                       whileHover={{ scale: 1.025, boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10)' }}
@@ -145,7 +241,7 @@ export const CodingProblem: React.FC = () => {
                     className={`join-item btn ${language === 'javascript' ? 'btn-primary' : 'btn-ghost'} transition-all`}
                     onClick={() => {
                       setLanguage('javascript');
-                      setCode(selectedProblem.starterCode.javascript);
+                      setCode(currentProblem.starterCode.javascript);
                     }}
                     disabled={isSubmitting}
                   >
@@ -155,31 +251,40 @@ export const CodingProblem: React.FC = () => {
                     className={`join-item btn ${language === 'python' ? 'btn-primary' : 'btn-ghost'} transition-all`}
                     onClick={() => {
                       setLanguage('python');
-                      setCode(selectedProblem.starterCode.python);
+                      setCode(currentProblem.starterCode.python);
                     }}
                     disabled={isSubmitting}
                   >
                     Python
                   </button>
                 </div>
-                <button
-                  className="btn btn-primary btn-lg transition-all shadow-md"
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="loading loading-spinner loading-sm"></span>
-                      Submitting...
-                    </>
-                  ) : (
-                    'Submit'
-                  )}
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    className="btn btn-error btn-lg transition-all shadow-md"
+                    onClick={handleSkip}
+                    disabled={isSubmitting}
+                  >
+                    Skip Problem
+                  </button>
+                  <button
+                    className="btn btn-primary btn-lg transition-all shadow-md"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <span className="loading loading-spinner loading-sm"></span>
+                        Submitting...
+                      </>
+                    ) : (
+                      'Submit'
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="h-[60vh] min-h-[350px] max-h-[700px] relative rounded-lg overflow-hidden border border-base-300">
                 <CodeEditor
-                  problem={selectedProblem}
+                  problem={currentProblem}
                   onCodeChange={setCode}
                   language={language}
                 />

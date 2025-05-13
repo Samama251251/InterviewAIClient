@@ -46,28 +46,42 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({ resum
     });
 
   }, []);
-
-  const startInterview = () => {
-    setConnecting(true);
-    vapi.start({
-      name: "Technical Interviewer",
-      firstMessage: "Hello! I'll be conducting your technical interview today. I'll ask you questions based on your experience and the role you're applying for. Let's begin!",
-      transcriber: {
-        provider: "deepgram",
-        model: "nova-2",
-        language: "en-US",
-      },
-      voice: {
-        provider: "playht",
-        voiceId: "jennifer",
-      },
-      model: {
-        provider: "openai",
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: `You are an expert technical interviewer conducting a knowledge-based interview. 
+  const assistantOptions = {
+    clientMessages: [
+      "conversation-update",
+      "function-call",
+      "hang",
+      "model-output",
+      "speech-update",
+      "status-update",
+      "transcript"
+    ],
+    serverMessages: [
+      "conversation-update",
+      "end-of-call-report",
+      "function-call"
+    ],
+    name: "Technical Interviewer", 
+    server: {
+      url: "https://heard-dealt-rt-dial.trycloudflare.com/api/end-of-call-report"
+    },
+    firstMessage: "Hello! I'll be conducting your technical interview today. I'll ask you questions based on your experience and the role you're applying for. Let's begin!",
+    transcriber: {
+      provider: "deepgram",
+      model: "nova-2",
+      language: "en-US",
+    },
+    voice: {
+      provider: "playht",
+      voiceId: "jennifer",
+    },
+    model: {
+      provider: "openai",
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert technical interviewer conducting a knowledge-based interview. 
 The role they are applying for:
 ${JSON.stringify(role)}
             Required frameworks and technologies:
@@ -93,12 +107,14 @@ ${JSON.stringify(role)}
             Keep your responses concise and focused. After each answer, provide brief feedback and move to the next question.
             If the candidate goes off-topic, politely guide them back to the question.
             After 5-6 questions, thank them and conclude the interview.`
-          },
-        ],
-      },
-      clientMessages: [],
-      serverMessages: []
-    });
+        },
+      ],
+    },
+  };
+
+  const startInterview = () => {
+    setConnecting(true);
+    vapi.start(assistantOptions as unknown as Parameters<typeof vapi.start>[0]);
   };
 
   const endInterview = () => {

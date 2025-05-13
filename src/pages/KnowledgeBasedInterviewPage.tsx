@@ -37,6 +37,8 @@ const KnowledgeBasedInterviewPage = () => {
   const jobId = searchParams.get('jobId');
   const interviewId = searchParams.get('interviewId');
 
+  console.log('KnowledgeBasedInterviewPage: Extracted from URL - jobId:', jobId, 'interviewId:', interviewId);
+
   useEffect(() => {
     if (!jobId) {
       navigate('/candidate/interviews');

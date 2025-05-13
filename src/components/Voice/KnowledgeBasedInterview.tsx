@@ -62,6 +62,8 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({
   // Effect to associate the call ID with the interview round when callId is set
   useEffect(() => {
     const associateCallId = async () => {
+      console.log('Attempting to associate call ID. Values:', { callId, interviewId, roundIndex });
+
       if (callId && interviewId && roundIndex !== undefined) {
         try {
           setAssociationError(null);
@@ -85,6 +87,56 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({
   }, [callId, interviewId, roundIndex]);
 
   const assistantOptions = {
+    transcriber: {
+      provider: "deepgram",
+      model: "nova-2",
+      language: "en-US"
+    },
+    voice: {
+      provider: "playht",
+      voiceId: "jennifer"
+    },
+    model: {
+      provider: "openai",
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert technical interviewer conducting a knowledge-based interview. 
+The role they are applying for: ${role.title}
+Required frameworks and technologies: ${frameworks.join(', ')}
+
+Your task is to:
+1. Ask relevant technical questions based on their experience and the role requirements
+2. Focus on their projects and past experiences mentioned in their resume
+3. Ask follow-up questions to dive deeper into their technical knowledge
+4. Evaluate their responses and ask for clarification when needed
+5. Keep the conversation professional but conversational
+6. After 5-6 questions, conclude the interview with a summary
+
+Guidelines for questions:
+- Start with easier questions and gradually increase difficulty
+- Mix theoretical and practical questions
+- Ask about specific technologies mentioned in their resume
+- Include scenario-based questions related to their experience
+- Ask about their problem-solving approach in past projects
+- Focus on the required frameworks and technologies for this role
+- Ask about their experience with the specific role requirements
+
+Keep your responses concise and focused. After each answer, provide brief feedback and move to the next question.
+If the candidate goes off-topic, politely guide them back to the question.
+After 5-6 questions, thank them and conclude the interview.`
+        }
+      ]
+    },
+    name: "Technical Interviewer",
+    firstMessage: "Hello! I'll be conducting your technical interview today. I'll ask you questions based on your experience and the role you're applying for. Let's begin!",
+    firstMessageMode: "assistant-speaks-first",
+    serverMessages: [
+      "conversation-update",
+      "end-of-call-report",
+      "function-call"
+    ],
     clientMessages: [
       "conversation-update",
       "function-call",
@@ -94,60 +146,9 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({
       "status-update",
       "transcript"
     ],
-    serverMessages: [
-      "conversation-update",
-      "end-of-call-report",
-      "function-call"
-    ],
-    name: "Technical Interviewer", 
     server: {
-      url: "http://localhost:5000/api/end-of-call-report"
-    },
-    firstMessage: "Hello! I'll be conducting your technical interview today. I'll ask you questions based on your experience and the role you're applying for. Let's begin!",
-    transcriber: {
-      provider: "deepgram",
-      model: "nova-2",
-      language: "en-US",
-    },
-    voice: {
-      provider: "playht",
-      voiceId: "jennifer",
-    },
-    model: {
-      provider: "openai",
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert technical interviewer conducting a knowledge-based interview. 
-The role they are applying for:
-${JSON.stringify(role)}
-            Required frameworks and technologies:
-            ${JSON.stringify(frameworks)}
-
-            Your task is to:
-            1. Ask relevant technical questions based on their experience and the role requirements
-            2. Focus on their projects and past experiences mentioned in their resume
-            3. Ask follow-up questions to dive deeper into their technical knowledge
-            4. Evaluate their responses and ask for clarification when needed
-            5. Keep the conversation professional but conversational
-            6. After 5-6 questions, conclude the interview with a summary
-
-            Guidelines for questions:
-            - Start with easier questions and gradually increase difficulty
-            - Mix theoretical and practical questions
-            - Ask about specific technologies mentioned in their resume
-            - Include scenario-based questions related to their experience
-            - Ask about their problem-solving approach in past projects
-            - Focus on the required frameworks and technologies for this role
-            - Ask about their experience with the specific role requirements
-
-            Keep your responses concise and focused. After each answer, provide brief feedback and move to the next question.
-            If the candidate goes off-topic, politely guide them back to the question.
-            After 5-6 questions, thank them and conclude the interview.`
-        },
-      ],
-    },
+      url: "https://fleece-lat-refresh-riding.trycloudflare.com/api/end-of-call-report"
+    }
   };
 
   const startInterview = async () => {
@@ -155,8 +156,7 @@ ${JSON.stringify(role)}
     try {
       // vapi.start returns a Promise that resolves with the call object
       const call = await vapi.start(assistantOptions as unknown as Parameters<typeof vapi.start>[0]);
-      // Save the call ID from the returned call object
-
+      
       console.log(" this is the call object", call);
       if (call && call.id) {
         setCallId(call.id);

@@ -19,10 +19,7 @@ interface InterviewRound {
   status?: string;
 }
 
-interface InterviewType {
-  _id: string;
-  rounds: InterviewRound[];
-}
+
 
 const KnowledgeBasedInterviewPage = () => {
   const location = useLocation();

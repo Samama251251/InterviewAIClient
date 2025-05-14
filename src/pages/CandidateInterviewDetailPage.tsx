@@ -203,7 +203,7 @@ const CandidateInterviewDetailPage = () => {
     if (round.type === 'KnowledgeBased') {
       // Navigate to knowledge-based interview with jobId
       const jobId = typeof interview.job_id === 'string' ? interview.job_id : interview.job_id._id;
-      navigate(`/knowledge-based?jobId=${jobId}`);
+      navigate(`/knowledge-based?jobId=${jobId}&interviewId=${interview._id}`);
     } else if (round.type === 'Coding') {
       // Navigate to coding problem with interviewId and roundIndex
       navigate(`/coding-problem?interviewId=${interview._id}&roundIndex=${roundIndex}`);

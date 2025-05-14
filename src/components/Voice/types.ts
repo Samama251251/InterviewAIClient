@@ -38,4 +38,6 @@ export interface KnowledgeBasedInterviewProps {
   resume: Resume;
   role: Role;
   frameworks: string[];
+  interviewId?: string;
+  roundIndex?: number;
 } 

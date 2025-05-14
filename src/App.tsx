@@ -23,6 +23,11 @@ import CandidateInterviewsPage from "@/pages/CandidateInterviewsPage"
 import CandidateInterviewDetailPage from "@/pages/CandidateInterviewDetailPage"
 import KnowledgeBasedInterviewPage from "@/pages/KnowledgeBasedInterviewPage"
 import { CodingProblem } from './pages/CodingProblem';
+import SystemDesign from "@/pages/SystemDesign"
+import Features from './pages/Features';
+import Pricing from './pages/Pricing';
+import About from './pages/About';
+import Contact from './pages/Contact';
 
 // In your router configuration
 
@@ -50,6 +55,10 @@ function App() {
         <Routes>
           <Route element={<MainLayout theme={theme} toggleTheme={toggleTheme} />}>
             <Route path="/" element={<Landing />} />
+            <Route path="/features" element={<Features />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
           </Route>
 
           <Route path="/login" element={<Login />} />
@@ -65,7 +74,12 @@ function App() {
               </PrivateRoute>
             } 
           />
-          
+           <Route path="/system-design/:interviewId/:roundIndex" element={
+              <PrivateRoute>
+                <SystemDesign />
+              </PrivateRoute>
+              
+              } />
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 
             path="/employee" 
@@ -77,6 +91,7 @@ function App() {
               </PrivateRoute>
             }
           >
+           
             <Route index element={<DashboardOverview />} />
             <Route path="jobs" element={<JobsPage />} />
             <Route path="jobs/:jobId" element={<JobDetailPage />} />
@@ -87,6 +102,7 @@ function App() {
             <Route path="companies/new" element={<CreateCompanyPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
+            
           </Route>
           
           <Route 
@@ -104,6 +120,7 @@ function App() {
             <Route path="coding-problem" element={<CodingProblem />} />
           </Route>
 
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

@@ -16,7 +16,9 @@ interface SystemDesignProps {
 }
 
 export default function SystemDesign({ fullScreen = false }: SystemDesignProps) {
-  const { interviewId = '', roundIndex = '0' } = useParams<{ interviewId: string, roundIndex: string }>();
+  const searchParams = new URLSearchParams(location.search);
+  const interviewId = searchParams.get('interviewId');
+  const roundIndex = searchParams.get('roundIndex');
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [remainingTime, setRemainingTime] = useState<number>(100 * 60); // 100 minutes
@@ -56,7 +58,14 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
   const questionRefs = useRef<Record<number, SystemDesignQuestionPageRef>>({});
 
   // Get interview data
-  const { isLoading: isLoadingInterview } = useInterviews().getInterviewById(interviewId);
+  const { isLoading: isLoadingInterview } = useInterviews().getInterviewById(interviewId || '');
+
+  useEffect(() => {
+    if (!interviewId || !roundIndex) {
+      navigate('/candidate/interviews');
+      return;
+    }
+  }, [interviewId, roundIndex, navigate]);
 
   // Simulate loading state
   useEffect(() => {
@@ -188,7 +197,7 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
       }
       
       // Submit to API
-      await systemDesignService.submitSystemDesign(interviewId, submissions);
+      await systemDesignService.submitSystemDesign(interviewId || '', submissions);
       
       // Mark as submitted
       setIsSubmitted(true);

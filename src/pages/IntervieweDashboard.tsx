@@ -342,7 +342,7 @@ function IntervieweeDashboard() {
                 
                 <button 
                   className="btn btn-primary btn-sm w-full mt-3"
-                  onClick={() => navigate('/interviews')}
+                  onClick={() => navigate('/candidate/interviews')}
                 >
                   View All Interviews
                 </button>
@@ -354,38 +354,7 @@ function IntervieweeDashboard() {
         </motion.div>
       </div>
 
-      {/* Quick Actions */}
-      <motion.div 
-        className="card bg-base-100 shadow-sm border border-base-300"
-        variants={itemVariants}
-      >
-        <div className="card-body">
-          <h3 className="card-title mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <button 
-              className="btn btn-primary"
-              onClick={() => navigate('/take-interview')}
-            >
-              <ListChecks className="h-4 w-4 mr-2" />
-              Take Interview
-            </button>
-            <button 
-              className="btn btn-outline"
-              onClick={() => navigate('/interviews')}
-            >
-              <ScrollText className="h-4 w-4 mr-2" />
-              View Interviews
-            </button>
-            <button 
-              className="btn btn-outline"
-              onClick={() => navigate('/settings')}
-            >
-              <UserCog className="h-4 w-4 mr-2" />
-              Edit Details
-            </button>
-          </div>
-        </div>
-      </motion.div>
+      
     </motion.div>
   );
 }

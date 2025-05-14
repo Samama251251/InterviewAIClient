@@ -8,9 +8,6 @@ import {
   BriefcaseBusiness, 
   FileCheck, 
   CalendarDays, 
-  ListChecks, 
-  UserCog, 
-  ScrollText
 } from "lucide-react";
 import { useJobs } from "../hooks/useJobs";
 import { useInterviews } from "../hooks/useInterviews";

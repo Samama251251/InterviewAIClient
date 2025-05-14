@@ -1,6 +1,6 @@
 import { CompanyReference } from './employee';
 
-export type RoundType = 'Coding' | 'FrameworkSpecific' | 'SystemDesign' | 'Behavioural' | 'KnowledgeBased';
+export type RoundType = 'Coding' | 'KnowledgeBased' | 'SystemDesign';
 
 export interface Round {
   type: RoundType;

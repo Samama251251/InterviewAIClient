@@ -15,7 +15,6 @@ const roleOptions = Object.keys(jobRolesData);
 const baseRoundTypes: RoundType[] = [
   'Coding',
   'SystemDesign',
-  'Behavioural',
   'KnowledgeBased'
 ];
 
@@ -44,9 +43,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   const frameworkDropdownRef = useRef<HTMLDivElement>(null);
 
   // Define final round types based on framework selection
-  const roundTypeOptions: RoundType[] = selectedFrameworks.length > 0 
-    ? [...baseRoundTypes, 'FrameworkSpecific'] 
-    : baseRoundTypes;
+  const roundTypeOptions: RoundType[] = baseRoundTypes;
 
   const {
     register,
@@ -97,13 +94,7 @@ const CreateJobModal: React.FC<CreateJobModalProps> = ({
   // Update form when selected frameworks change
   useEffect(() => {
     setValue('framework', selectedFrameworks);
-    
-    // Remove FrameworkSpecific from round types if no frameworks are selected
-    if (selectedFrameworks.length === 0) {
-      const updatedRoundTypes = selectedRoundTypes.filter(type => type !== 'FrameworkSpecific');
-      setSelectedRoundTypes(updatedRoundTypes);
-      setValue('roundTypes', updatedRoundTypes);
-    }
+  
   }, [selectedFrameworks, setValue]);
 
   const handleRoleSelect = (role: string) => {

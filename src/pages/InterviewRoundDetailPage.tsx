@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, Star, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Award, AlertCircle, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { useInterviews } from '@/hooks/useInterviews';
 import { RoundType } from '@/types/job';
 
@@ -143,10 +143,6 @@ const InterviewRoundDetailPage: React.FC = () => {
         return <ClipboardList className="h-6 w-6 text-primary" />;
       case 'SystemDesign':
         return <FileText className="h-6 w-6 text-info" />;
-      case 'FrameworkSpecific':
-        return <Star className="h-6 w-6 text-warning" />;
-      case 'Behavioural':
-        return <User className="h-6 w-6 text-success" />;
       case 'KnowledgeBased':
         return <Award className="h-6 w-6 text-secondary" />;
       default:

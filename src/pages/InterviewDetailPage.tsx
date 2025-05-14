@@ -1,7 +1,7 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, Star, ChevronRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, ChevronRight, CheckCircle } from 'lucide-react';
 import { useInterviews } from '@/hooks/useInterviews';
 import { RoundType } from '@/types/job';
 import api from '@/services/api';
@@ -184,10 +184,6 @@ const InterviewDetailPage: React.FC = () => {
         return <ClipboardList className="h-5 w-5 text-primary" />;
       case 'SystemDesign':
         return <FileText className="h-5 w-5 text-info" />;
-      case 'FrameworkSpecific':
-        return <Star className="h-5 w-5 text-warning" />;
-      case 'Behavioural':
-        return <User className="h-5 w-5 text-success" />;
       case 'KnowledgeBased':
         return <Award className="h-5 w-5 text-secondary" />;
       default:

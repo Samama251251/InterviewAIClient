@@ -18,10 +18,10 @@ export function Header({ theme, toggleTheme }: HeaderProps) {
               </svg>
             </div>
             <ul tabIndex={0} className="menu dropdown-content mt-3 z-[1] p-2 shadow bg-neutral rounded-box w-52 text-sm">
-              <li><a className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Features</a></li>
-              <li><a className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Pricing</a></li>
-              <li><a className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">About</a></li>
-              <li><a className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Contact</a></li>
+              <li><Link to="/features" className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Features</Link></li>
+              <li><Link to="/pricing" className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Pricing</Link></li>
+              <li><Link to="/about" className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">About</Link></li>
+              <li><Link to="/contact" className="transition duration-150 ease-in-out hover:text-primary hover:bg-neutral-focus">Contact</Link></li>
             </ul>
           </div>
           <Link to="/" className="flex items-center gap-2">
@@ -31,10 +31,10 @@ export function Header({ theme, toggleTheme }: HeaderProps) {
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1 gap-1 text-sm">
-            <li><a className="transition duration-150 ease-in-out hover:text-primary rounded-md">Features</a></li>
-            <li><a className="transition duration-150 ease-in-out hover:text-primary rounded-md">Pricing</a></li>
-            <li><a className="transition duration-150 ease-in-out hover:text-primary rounded-md">About</a></li>
-            <li><a className="transition duration-150 ease-in-out hover:text-primary rounded-md">Contact</a></li>
+            <li><Link to="/features" className="transition duration-150 ease-in-out hover:text-primary rounded-md">Features</Link></li>
+            <li><Link to="/pricing" className="transition duration-150 ease-in-out hover:text-primary rounded-md">Pricing</Link></li>
+            <li><Link to="/about" className="transition duration-150 ease-in-out hover:text-primary rounded-md">About</Link></li>
+            <li><Link to="/contact" className="transition duration-150 ease-in-out hover:text-primary rounded-md">Contact</Link></li>
           </ul>
         </div>
         <div className="navbar-end gap-2">

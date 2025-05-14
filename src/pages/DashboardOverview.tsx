@@ -9,6 +9,7 @@ import { UserAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import AddEmployeeModal from '@/components/Employee/AddEmployeeModal';
 import EditCompanyModal from '@/components/Company/EditCompanyModal';
+import CreateJobModal from '@/components/Job/CreateJobModal';
 
 const DashboardOverview = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const DashboardOverview = () => {
   // Modal states
   const [isAddEmployeeModalOpen, setIsAddEmployeeModalOpen] = useState(false);
   const [isEditCompanyModalOpen, setIsEditCompanyModalOpen] = useState(false);
-  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   // Fetch data using the hooks
   const { getJobs } = useJobs();
   const { getInterviews } = useInterviews();
@@ -336,7 +337,7 @@ const DashboardOverview = () => {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 <button 
                   className="btn btn-primary"
-                  onClick={() => navigate('/employee/jobs/new')}
+                  onClick={()=> setIsDialogOpen(true)}
                 >
                   Post New Job
                 </button>
@@ -393,6 +394,12 @@ const DashboardOverview = () => {
             onClose={() => setIsEditCompanyModalOpen(false)}
             company={selectedCompany}
           />
+           <CreateJobModal 
+              isOpen={isDialogOpen}
+              onClose={() => setIsDialogOpen(false)}
+              selectedCompany={selectedCompany}
+            />
+
         </>
       )}
     </motion.div>

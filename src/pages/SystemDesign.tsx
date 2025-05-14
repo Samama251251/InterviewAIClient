@@ -16,9 +16,10 @@ interface SystemDesignProps {
 }
 
 export default function SystemDesign({ fullScreen = false }: SystemDesignProps) {
-  const searchParams = new URLSearchParams(location.search);
-  const interviewId = searchParams.get('interviewId');
-  const roundIndex = searchParams.get('roundIndex');
+  const { interviewId = '', roundIndex = '0' } = useParams<{ interviewId: string, roundIndex: string }>();
+
+  console.log(interviewId, roundIndex)
+
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [remainingTime, setRemainingTime] = useState<number>(100 * 60); // 100 minutes
@@ -56,6 +57,7 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
   
   // References to question components for method access
   const questionRefs = useRef<Record<number, SystemDesignQuestionPageRef>>({});
+
 
   // Get interview data
   const { isLoading: isLoadingInterview } = useInterviews().getInterviewById(interviewId || '');

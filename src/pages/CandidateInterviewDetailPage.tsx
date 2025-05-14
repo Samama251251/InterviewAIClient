@@ -209,7 +209,7 @@ const CandidateInterviewDetailPage = () => {
       navigate(`/coding-problem?interviewId=${interview._id}&roundIndex=${roundIndex}`);
     } else if (round.type === 'SystemDesign') {
       // Navigate to system design interview with interviewId and roundIndex
-      navigate(`/system-design?interviewId=${interview._id}&roundIndex=${roundIndex}`);
+      navigate(`/system-design/${interviewId}/${roundIndex}`);
     } else {
       navigate(`/candidate/interviews/${interviewId}/rounds/${roundIndex}/take`);
     }

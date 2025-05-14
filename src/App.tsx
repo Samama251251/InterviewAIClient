@@ -74,12 +74,12 @@ function App() {
               </PrivateRoute>
             } 
           />
-           <Route path="/system-design/:interviewId/:roundIndex" element={
-              <PrivateRoute>
-                <SystemDesign />
-              </PrivateRoute>
-              
-              } />
+          <Route path="/system-design/:interviewId/:roundIndex" element={
+            <PrivateRoute>
+              <SystemDesign />
+            </PrivateRoute>
+            
+            } />
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 
             path="/employee" 

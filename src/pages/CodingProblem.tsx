@@ -46,7 +46,7 @@ export const CodingProblem: React.FC = () => {
 
   const updateInterviewRound = async (score: number) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/interviews/${interviewId}/rounds`, {
+      const response = await axios.put(`${import.meta.env.VITE_SERVER_URL}/api/interviews/${interviewId}/rounds`, {
         rounds: [{
           type: 'Coding',
           score: score,
@@ -73,7 +73,7 @@ export const CodingProblem: React.FC = () => {
     try {
       setIsSubmitting(true);
       const example = selectedProblems[currentProblemIndex].examples[0];
-      const response = await axios.post('http://localhost:5000/api/submissions', {
+      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/api/submissions`, {
         code,
         language,
         input: example.input,
@@ -87,7 +87,7 @@ export const CodingProblem: React.FC = () => {
       
       const pollInterval = setInterval(async () => {
         try {
-          const resultResponse = await axios.get(`http://localhost:5000/api/submissions/${data.submissionId}`, {
+          const resultResponse = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/submissions/${data.submissionId}`, {
             withCredentials: true
           });
           

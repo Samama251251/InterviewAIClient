@@ -46,14 +46,14 @@ const KnowledgeBasedInterviewPage = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const jobRes = await axios.get(`http://localhost:5000/api/jobs/${jobId}`, {
+        const jobRes = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/jobs/${jobId}`, {
           withCredentials: true
         });
         setJob(jobRes.data.data);
 
         // If interviewId is provided, fetch interview details
         if (interviewId) {
-          const interviewRes = await axios.get(`http://localhost:5000/api/interviews/${interviewId}`, {
+          const interviewRes = await axios.get(`${import.meta.env.VITE_SERVER_URL}/api/interviews/${interviewId}`, {
             withCredentials: true
           });
           

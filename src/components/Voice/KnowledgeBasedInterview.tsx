@@ -69,7 +69,7 @@ const KnowledgeBasedInterview: React.FC<KnowledgeBasedInterviewProps> = ({
           setAssociationError(null);
           setAssociationSuccess(false);
           const response = await axios.post(
-            `http://localhost:5000/api/interviews/${interviewId}/associate-call`,
+            `${import.meta.env.VITE_SERVER_URL}/api/interviews/${interviewId}/associate-call`,
             { callId, roundIndex },
             { withCredentials: true }
           );
@@ -147,7 +147,7 @@ After 5-6 questions, thank them and conclude the interview.`
       "transcript"
     ],
     server: {
-      url: "https://fleece-lat-refresh-riding.trycloudflare.com/api/end-of-call-report"
+      url: `${import.meta.env.VITE_SERVER_URL}/api/end-of-call-report`
     }
   };
 

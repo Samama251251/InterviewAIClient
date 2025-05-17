@@ -287,6 +287,7 @@ export const CodingProblem: React.FC = () => {
                   problem={currentProblem}
                   onCodeChange={setCode}
                   language={language}
+                  interviewId={interviewId}
                 />
                 {isSubmitting && <LoadingOverlay message={timedOut ? 'Timed out...' : 'Evaluating...'} />}
               </div>

@@ -32,6 +32,7 @@ const CopyPasteDetectionComponent = () => {
 
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
+      console.log("Clipboard event:", e);
       console.log("User pasted something!");
       warning("Copy-paste detected: Content has been pasted.");
       if (currentInterviewId) {

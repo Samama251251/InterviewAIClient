@@ -40,6 +40,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({ problem, onCodeChange, l
       });
 
       const pasteListener = editor.onDidPaste((e: monaco.editor.IPasteEvent) => {
+        console.log("Paste event:", e);
         warning("Copy-paste detected, please do not copy-paste code.");
         if (interviewId) {
           reportViolation(interviewId, { type: "COPY_PASTE", timestamp: new Date() })

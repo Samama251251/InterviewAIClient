@@ -10,6 +10,7 @@ import * as systemDesignService from "@/services/systemDesign";
 import { SystemDesignQuestion, SystemDesignSubmission } from "@/types/systemDesign";
 import SystemDesignQuestionPage, { QuestionData, SystemDesignQuestionPageRef } from "@/components/Interview/SystemDesign/SystemDesignQuestionPage";
 import SystemDesignSubmissionView from "@/components/Interview/SystemDesign/SystemDesignSubmissionView";
+import { useToast } from "@/hooks/useToast";
 
 interface SystemDesignProps {
   fullScreen?: boolean;
@@ -21,6 +22,7 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
   console.log(interviewId, roundIndex)
 
   const navigate = useNavigate();
+  const { success: showSuccessMessage } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [remainingTime, setRemainingTime] = useState<number>(100 * 60); // 100 minutes
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -85,7 +87,10 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
         setRemainingTime(prev => {
           if (prev <= 1) {
             clearInterval(timer);
-            handleAutoSubmit();
+            // Ensure auto-submit is guarded
+            if (!isSubmitted) {
+              handleAutoSubmit();
+            }
             return 0;
           }
           return prev - 1;
@@ -94,7 +99,7 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
       
       return () => clearInterval(timer);
     }
-  }, [isSubmitted]);
+  }, [isSubmitted]); // Added isSubmitted to dependency array for safety
 
   // Auto submit function
   const handleAutoSubmit = () => {
@@ -149,67 +154,108 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
   // Prepare and submit all answers
   const submitAllAnswers = async () => {
     try {
-      // Save current question data
+      setIsLoading(true); // Indicate loading state during submission process
+
+      // 1. Save drawing data for the currently active question.
+      // This ensures its latest drawing is part of its internal state before screenshotting.
+      // It calls onDataChange, which updates `questionsData` asynchronously.
       if (questionRefs.current[currentQuestionIndex]) {
         questionRefs.current[currentQuestionIndex].saveDrawingData();
       }
-      
-      // Capture screenshots for all questions with drawings
-      await Promise.all(
-        Object.keys(questionsData).map(async (indexStr) => {
-          const index = parseInt(indexStr, 10);
-          const data = questionsData[index];
-          
-          // If we have drawing data but no screenshot, capture it
-          if (data.drawingData && !data.screenshot && questionRefs.current[index]) {
-            // Switch to this question if needed
-            if (index !== currentQuestionIndex) {
-              setCurrentQuestionIndex(index);
-              // Wait for component to update
-              await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Brief pause to allow state from saveDrawingData to potentially propagate.
+      // The core fix relies on captureScreenshot returning data, making this less critical.
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      // 2. Prepare a data structure to hold information for submission, initialized from current state.
+      // We'll update this with freshly captured screenshots.
+      const submissionAssemblyData: Record<number, QuestionData> = JSON.parse(JSON.stringify(questionsData || {}));
+
+      // 3. Iterate through all questions to capture screenshots if needed.
+      const screenshotOps = questions.map(async (_question, index) => {
+        const questionRef = questionRefs.current[index];
+        const currentDataInState = questionsData[index] || ({} as QuestionData); // Data from React state
+
+        // Condition: Drawing exists in state, and our assembly data doesn't yet have a screenshot for it.
+        if (questionRef && currentDataInState.drawingData && !submissionAssemblyData[index]?.screenshot) {
+          try {
+            // IMPORTANT ASSUMPTION: `captureScreenshot` in `SystemDesignQuestionPage.tsx`
+            // is modified to return `Promise<string | null>` (the screenshot string)
+            // AND internally calls `props.onDataChange` to update `questionsData` state.
+            const screenshot = await questionRef.captureScreenshot();
+
+            if (screenshot) {
+              // Update our local assembly data directly with the fresh screenshot.
+              submissionAssemblyData[index] = {
+                ...(submissionAssemblyData[index] || {}), // Preserve existing text answers etc.
+                drawingData: currentDataInState.drawingData, // Ensure drawingData flag is true
+                screenshot: screenshot,
+                textAnswer: currentDataInState.textAnswer || submissionAssemblyData[index]?.textAnswer, // Preserve text answer
+              };
+              // The child's `onDataChange` (called within its `captureScreenshot`) updates the main `questionsData`.
+              // For robustness, we can also call handleQuestionDataChange here to ensure the main state
+              // reflects the structure we've assembled, in case the child's onDataChange payload differs.
+              handleQuestionDataChange(index, submissionAssemblyData[index]);
             }
-            
-            // Capture screenshot
-            await questionRefs.current[index].captureScreenshot();
+          } catch (e) {
+            console.error(`Failed to capture screenshot for question ${index + 1}:`, e);
+            // Continue with other questions
           }
-          
-          return true;
-        })
-      );
-      
-      // Prepare submissions for all questions
-      const submissions: SystemDesignSubmission[] = [];
-      
-      for (let i = 0; i < questions.length; i++) {
-        const question = questions[i];
-        const data = questionsData[i];
+        } else if (currentDataInState.screenshot && !submissionAssemblyData[index]?.screenshot) {
+          // If state already has a screenshot (e.g. from a previous action) and our assembly doesn't, sync it.
+          submissionAssemblyData[index] = {
+             ...(submissionAssemblyData[index] || {}),
+             ...currentDataInState // This will bring drawingData, screenshot, textAnswer from state
+          };
+        }
         
-        if (question && data?.screenshot) {
+        // Ensure text answers and drawingData flags from state are correctly represented in assembly data
+        // if they were somehow missed or if assembly was sparse for this index.
+        if (currentDataInState.textAnswer && submissionAssemblyData[index]?.textAnswer !== currentDataInState.textAnswer) {
+            if (!submissionAssemblyData[index]) submissionAssemblyData[index] = {} as QuestionData;
+            submissionAssemblyData[index].textAnswer = currentDataInState.textAnswer;
+        }
+        if (currentDataInState.drawingData && !submissionAssemblyData[index]?.drawingData ) {
+            if (!submissionAssemblyData[index]) submissionAssemblyData[index] = {} as QuestionData;
+            submissionAssemblyData[index].drawingData = currentDataInState.drawingData;
+        }
+      });
+
+      await Promise.all(screenshotOps);
+
+      // 4. Prepare the final list of submissions using the assembled data.
+      const submissions: SystemDesignSubmission[] = [];
+      questions.forEach((questionDetail, index) => {
+        const data = submissionAssemblyData[index];
+        if (data?.screenshot) { // Ensure screenshot exists in our assembled data
           submissions.push({
-            question: question.question,
-            answer: data.textAnswer || `System design solution for: ${question.question}`,
-            designed_system_image_base64: data.screenshot
+            question: questionDetail.question,
+            answer: data.textAnswer || `System design solution for: ${questionDetail.question}`,
+            designed_system_image_base64: data.screenshot,
           });
         }
-      }
+      });
       
       if (submissions.length === 0) {
-        alert("No designs to submit. Please draw something before submitting.");
+        const anyDrawingDataInitially = Object.values(questionsData).some(qd => qd?.drawingData);
+        if (anyDrawingDataInitially) {
+          alert("Failed to capture or find designs for submission. Please ensure your drawings are saved and try again. If the problem persists, check the console for errors.");
+        } else {
+          alert("No designs to submit. Please draw something before submitting.");
+        }
         return;
       }
       
-      // Submit to API
+      // 5. Submit to API
       await systemDesignService.submitSystemDesign(interviewId || '', submissions);
-      
-      // Mark as submitted
       setIsSubmitted(true);
+      setIsLoading(false); // Set loading false before navigation/toast
       
-      // Navigate back to interview detail after a delay
-      setTimeout(() => {
-        navigate(`/candidate/interviews/${interviewId}`);
-      }, 2000);
+      showSuccessMessage("Your system designs have been submitted successfully!");
+      navigate(`/candidate/interviews/${interviewId}`); // Navigate immediately
     } catch (error) {
       console.error("Error submitting system designs:", error);
+      setIsLoading(false); // Ensure loading is turned off on error
       alert("There was an error submitting your designs. Please try again.");
     }
   };
@@ -271,9 +317,19 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
             <button 
               className={`btn ${fullScreen ? 'btn-md' : 'btn-sm'} btn-primary gap-2`}
               onClick={submitAllAnswers}
+              disabled={isLoading}
             >
-              <FileDown className="h-4 w-4" />
-              Submit All
+              {isLoading ? (
+                <>
+                  <span className="loading loading-spinner loading-xs"></span>
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <FileDown className="h-4 w-4" />
+                  Submit All
+                </>
+              )}
             </button>
           ) : (
             <div className="badge badge-success gap-1">
@@ -349,16 +405,6 @@ export default function SystemDesign({ fullScreen = false }: SystemDesignProps) 
           ))
         )}
       </div>
-      
-      {/* Submit confirmation toast */}
-      {isSubmitted && (
-        <div className="toast toast-center">
-          <div className="alert alert-success">
-            <Check className="h-5 w-5" />
-            <span>Your system designs have been submitted!</span>
-          </div>
-        </div>
-      )}
     </motion.div>
   );
 }

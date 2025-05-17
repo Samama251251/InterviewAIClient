@@ -21,6 +21,7 @@ import {
 import { useInterviews } from "@/hooks/useInterviews";
 import { InterviewRound } from "@/types/interview";
 import InterviewConfirmationModal from "@/components/Interview/InterviewConfirmationModal";
+import { LoadingOverlay } from "@/components/common/LoadingOverlay";
 import { useToast } from "@/hooks/useToast";
 import { fileToBase64, isPdf } from "@/utils/fileUtils";
 import * as cvService from "@/services/cvService";
@@ -309,11 +310,11 @@ const CandidateInterviewDetailPage = () => {
             Interview #{interviewId?.substring(0, 6)}
           </div>
         </div>
-      </div>
-
-      {/* CV Upload Section */}
+      </div>      {/* CV Upload Section */}
       <motion.div variants={itemVariants} className="card bg-base-100 shadow-sm border border-base-300">
-        <div className="card-body">
+        <div className="card-body relative">
+          {isUploading && <LoadingOverlay message="Uploading CV..." />}
+          
           <h2 className="card-title flex items-center gap-2">
             <FileText className="w-5 h-5" />
             Resume / CV

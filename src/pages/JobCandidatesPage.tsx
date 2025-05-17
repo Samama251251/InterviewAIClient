@@ -1,26 +1,21 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, CheckCircle, AlertCircle, UserPlus, Filter, Upload } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, AlertCircle, UserPlus } from 'lucide-react';
 import { Interview, InterviewRound } from '@/types/interview';
 import { useJobs } from '@/hooks/useJobs';
 import { useInterviews } from '@/hooks/useInterviews';
 import AddCandidateModal from '@/components/Candidate/AddCandidateModal';
-import BulkUploadModal from '@/components/Candidate/BulkUploadModal';
-import ScreenCandidatesModal from '@/components/Candidate/ScreenCandidatesModal';
-import { screenCandidates } from '@/services/screenCandidates';
-import { useToast } from '@/hooks/useToast';
+
 
 const JobCandidatesPage: React.FC = () => {
   const { jobId = '' } = useParams<{ jobId: string }>();
   const navigate = useNavigate();  
-  const toast = useToast();
   
   // Tab and modal states
   const [activeTab, setActiveTab] = useState('pending');
   const [isAddCandidateModalOpen, setIsAddCandidateModalOpen] = useState(false);
-  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
-  const [isScreenModalOpen, setIsScreenModalOpen] = useState(false);
+
   
   // Use useJobs hook to fetch job details
   const { getJobById } = useJobs();
@@ -57,35 +52,10 @@ const JobCandidatesPage: React.FC = () => {
   }, [jobInterviews]);
   
   // Handle bulk upload success
-  const handleBulkUploadSuccess = (result: { successful: number; failed: number; total: number }) => {
-    // Refresh the interviews list
-    getInterviews.refetch();
-    
-    // Show a success message
-    toast.success(`Successfully uploaded ${result.successful} candidates. ${result.failed > 0 ? `${result.failed} failed.` : ''}`);
-    
-    // Close the modal
-    setIsBulkUploadModalOpen(false);
-    
-    // Switch to pending tab to show the new candidates
-    setActiveTab('pending');
-  };
+  
   
   // Handle candidate screening
-  const handleScreenCandidates = async (criteria: string) => {
-    try {
-      // Use the screenCandidates service
-      const result = await screenCandidates(jobId, criteria);
-      
-      // Refresh the interviews list after screening
-      getInterviews.refetch();
-      
-      // Return a success message
-      return Promise.resolve(`Successfully screened candidates: ${result.screened} removed, ${result.remaining} remaining.`);
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  };
+  
   
   // Check if still loading any data
   const isLoading = isJobLoading || isInterviewsLoading;
@@ -254,22 +224,9 @@ const JobCandidatesPage: React.FC = () => {
               Add Candidate
             </button>
             
-            <button 
-              className="btn btn-outline btn-sm"
-              onClick={() => setIsBulkUploadModalOpen(true)}
-            >
-              <Upload className="h-4 w-4 mr-2" />
-              Bulk Upload
-            </button>
             
-            <button 
-              className="btn btn-error btn-sm"
-              onClick={() => setIsScreenModalOpen(true)}
-              disabled={jobInterviews.length === 0}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Screen Candidates
-            </button>
+            
+           
           </div>
         </motion.div>
       </div>
@@ -310,18 +267,7 @@ const JobCandidatesPage: React.FC = () => {
         jobId={jobId}
       />
       
-      <BulkUploadModal
-        isOpen={isBulkUploadModalOpen}
-        onClose={() => setIsBulkUploadModalOpen(false)}
-        jobId={jobId}
-        onSuccess={handleBulkUploadSuccess}
-      />
       
-      <ScreenCandidatesModal
-        isOpen={isScreenModalOpen}
-        onClose={() => setIsScreenModalOpen(false)}
-        onConfirm={handleScreenCandidates}
-      />
     </div>
   );
 };

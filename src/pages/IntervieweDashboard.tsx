@@ -234,7 +234,7 @@ function IntervieweeDashboard() {
                 <h3 className="card-title">Applied Jobs</h3>
                 <button 
                   className="btn btn-sm btn-ghost"
-                  onClick={() => navigate('/applied-jobs')}
+                  onClick={() => navigate('interviews')}
                 >
                   View all
                 </button>

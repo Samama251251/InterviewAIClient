@@ -5,6 +5,7 @@ import { Login } from "@/pages/Login"
 import { Signup } from "@/pages/Signup"
 import DashboardLayout from "@/components/layout/DashbordLayout"
 import MainLayout from "@/components/layout/MainLayout"
+import InterviewPageWrapper from "@/components/layout/InterviewPageWrapper"
 import DashboardOverview from "@/pages/DashboardOverview"
 import JobsPage from "@/pages/JobsPage"
 import JobDetailPage from "@/pages/JobDetailPage"
@@ -56,30 +57,40 @@ function App() {
           <Route element={<MainLayout theme={theme} toggleTheme={toggleTheme} />}>
             <Route path="/" element={<Landing />} />
             <Route path="/features" element={<Features />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
           </Route>
 
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/coding-problem" element={<CodingProblem />} />
+
+          <Route 
+            path="/coding-problem" 
+            element={
+              <InterviewPageWrapper>
+                <CodingProblem />
+              </InterviewPageWrapper>
+            } 
+          />
           
-          {/* Knowledge-based interview route */}
           <Route 
             path="/knowledge-based" 
             element={
               <PrivateRoute>
-                <KnowledgeBasedInterviewPage />
+                <InterviewPageWrapper>
+                  <KnowledgeBasedInterviewPage />
+                </InterviewPageWrapper>
               </PrivateRoute>
             } 
           />
           <Route path="/system-design/:interviewId/:roundIndex" element={
             <PrivateRoute>
-              <SystemDesign />
+              <InterviewPageWrapper>
+                <SystemDesign />
+              </InterviewPageWrapper>
             </PrivateRoute>
-            
-            } />
+          }/>
           {/* Dashboard routes with Navbar and no Footer */}
           <Route 
             path="/employee" 
@@ -117,10 +128,15 @@ function App() {
             <Route path="interviews" element={<CandidateInterviewsPage />} />
             <Route path="interviews/:interviewId" element={<CandidateInterviewDetailPage />} />
             <Route path="settings" element={<SettingsPage />} />
-            <Route path="coding-problem" element={<CodingProblem />} />
+            <Route 
+              path="coding-problem" 
+              element={
+                <InterviewPageWrapper>
+                  <CodingProblem />
+                </InterviewPageWrapper>
+              } 
+            />
           </Route>
-
-          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

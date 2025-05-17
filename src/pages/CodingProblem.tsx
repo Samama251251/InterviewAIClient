@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { CodeEditor } from '../components/CodeEditor';
+import { CodeEditor } from '../components/Interview/Coding/CodeEditor';
 import { codingProblems } from '../data/codingProblems';
 import { LoadingOverlay } from '../components/common/LoadingOverlay';
 import { ResultPanel } from '../components/common/ResultPanel';

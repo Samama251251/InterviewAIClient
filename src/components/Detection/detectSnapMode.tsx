@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useToast } from "@/hooks/useToast";
+import { useParams, useLocation } from 'react-router-dom';
+import { reportViolation } from '../../services/interviewService';
 
 interface SnapModeProps {
   onSnapModeChange?: (isSnapped: boolean) => void;
@@ -11,6 +14,31 @@ const DetectSnapMode: React.FC<SnapModeProps> = ({
 }) => {
   const [isSnapped, setIsSnapped] = useState<boolean>(false);
   const [previousWidth, setPreviousWidth] = useState<number>(window.innerWidth);
+  const { warning } = useToast();
+  const [currentInterviewId, setCurrentInterviewId] = useState<string | undefined>(undefined);
+
+  const params = useParams<{ interviewId?: string; [key: string]: string | undefined }>();
+  const location = useLocation();
+
+  useEffect(() => {
+    let idFromParams = params.interviewId;
+    if (idFromParams) {
+      setCurrentInterviewId(idFromParams);
+    } else {
+      try {
+        const searchParams = new URLSearchParams(location.search);
+        const idFromSearch = searchParams.get('interviewId');
+        if (idFromSearch) {
+          setCurrentInterviewId(idFromSearch);
+        } else {
+          setCurrentInterviewId(undefined);
+        }
+      } catch (e) {
+        console.warn("Could not parse searchParams for interviewId in DetectSnapMode:", e);
+        setCurrentInterviewId(undefined);
+      }
+    }
+  }, [params, location.search]);
 
   useEffect(() => {
     let resizeTimeout: NodeJS.Timeout;
@@ -33,6 +61,17 @@ const DetectSnapMode: React.FC<SnapModeProps> = ({
           const newSnappedState = currentWidth < previousWidth;
           setIsSnapped(newSnappedState);
           onSnapModeChange?.(newSnappedState);
+
+          if (newSnappedState) {
+            warning("Snap mode detected: Window has been resized to a snap layout.");
+            if (currentInterviewId) {
+              reportViolation(currentInterviewId, { type: "SNAP_MODE", timestamp: new Date() })
+                .then(() => console.log(`Violation (SNAP_MODE) reported for ${currentInterviewId}`))
+                .catch((err: unknown) => console.error(`Failed to report SNAP_MODE for ${currentInterviewId}:`, err));
+            } else {
+              console.warn("Snap mode detected, but no interviewId found. Violation not reported to server.");
+            }
+          }
         }
         
         // Update previous width
@@ -48,14 +87,14 @@ const DetectSnapMode: React.FC<SnapModeProps> = ({
         clearTimeout(resizeTimeout);
       }
     };
-  }, [previousWidth, onSnapModeChange, snapThresholdPercentage]);
+  }, [previousWidth, onSnapModeChange, snapThresholdPercentage, warning, currentInterviewId]);
 
   return (
     <>
-      {/* This is a non-visual component, but you could render something that shows snap state */}
+      {/* Development-only visual indicator can be removed if not desired */}
       {process.env.NODE_ENV === 'development' && (
         <div style={{ position: 'fixed', bottom: 0, right: 0, background: 'rgba(0,0,0,0.7)', color: 'white', padding: '5px', fontSize: '12px', zIndex: 9999 }}>
-          {isSnapped ? 'Window Snapped' : 'Window Normal'}
+          {isSnapped ? 'Window Snapped (Dev)' : 'Window Normal (Dev)'}
         </div>
       )}
     </>

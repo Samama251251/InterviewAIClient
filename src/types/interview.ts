@@ -1,6 +1,13 @@
 import { User } from './user';
 import { RoundType } from './job';
 
+const VIOLATION_TYPES = ['COPY_PASTE', 'SNAP_MODE', 'TAB_SWITCH'] as const;
+
+export interface Violation {
+  type: (typeof VIOLATION_TYPES)[number];
+  timestamp: Date;
+}
+
 export interface JobReference {
   _id: string;
   name: string;
@@ -29,6 +36,7 @@ export interface Interview {
   parsed_cv?: string; // Parsed text from candidate's CV
   score?: number; // Final interview score
   remarks?: string; // Final interview remarks
+  violations?: Violation[]; // Violations of the interview
 }
 
 export interface CreateInterviewInput {

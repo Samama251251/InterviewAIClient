@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import * as monaco from 'monaco-editor';
-import { CodingProblem } from '../data/codingProblems';
+import { CodingProblem } from '@/data/codingProblems';
 
 interface CodeEditorProps {
   problem: CodingProblem;

@@ -1,12 +1,13 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, ChevronRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ClipboardList, Award, User, AlertCircle, FileText, ChevronRight, CheckCircle, AlertTriangle, Copy, MonitorX } from 'lucide-react';
 import { useInterviews } from '@/hooks/useInterviews';
 import { RoundType } from '@/types/job';
 import api from '@/services/api';
 import { useToast } from '@/hooks/useToast';
-import { FinalEvaluationResponse } from '@/types/interview';
+import { FinalEvaluationResponse, Violation } from '@/types/interview';
+import { format } from 'date-fns';
 
 const InterviewDetailPage: React.FC = () => {
   const { interviewId = '' } = useParams<{ interviewId: string }>();
@@ -112,6 +113,34 @@ const InterviewDetailPage: React.FC = () => {
     
     return Math.round(sum / roundsWithScores.length);
   }, [interview]);
+  
+  // Get violation icon based on type
+  const getViolationIcon = (violation: Violation) => {
+    switch (violation.type) {
+      case 'COPY_PASTE':
+        return <Copy className="h-5 w-5 text-error" />;
+      case 'SNAP_MODE':
+        return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'TAB_SWITCH':
+        return <MonitorX className="h-5 w-5 text-error" />;
+      default:
+        return <AlertCircle className="h-5 w-5 text-error" />;
+    }
+  };
+
+  // Format violation description
+  const getViolationDescription = (type: string) => {
+    switch (type) {
+      case 'COPY_PASTE':
+        return 'Attempted to use copy-paste';
+      case 'SNAP_MODE':
+        return 'Detected screen capture attempt';
+      case 'TAB_SWITCH':
+        return 'Switched to another tab/window';
+      default:
+        return 'Unknown violation type';
+    }
+  };
   
   // If still loading, show loading state
   if (isLoading) {
@@ -323,6 +352,62 @@ const InterviewDetailPage: React.FC = () => {
           )}
         </div>
       </motion.div>
+
+      {/* Violations Section */}
+      {interview.violations && interview.violations.length > 0 && (
+        <motion.div 
+          className="card bg-base-100 shadow-sm hover:shadow-md transition-all duration-300 mt-4"
+          initial={{ opacity: 1, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, delay: 0.1 }}
+        >
+          <div className="card-body">
+            <div className="border-b border-base-300 pb-4 mb-4">
+              <h2 className="card-title flex items-center gap-2 text-error">
+                <AlertTriangle className="h-5 w-5" />
+                Violations Detected
+                <span className="badge badge-error badge-sm">{interview.violations.length}</span>
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-1 gap-3">
+              {interview.violations.map((violation, index) => (
+                <motion.div 
+                  key={index}
+                  className="flex items-start gap-3 p-3 rounded-lg bg-base-200 hover:bg-base-300 transition-colors"
+                  whileHover={{ scale: 1.01 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <div className="p-2 rounded-full bg-base-100">
+                    {getViolationIcon(violation)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium">{getViolationDescription(violation.type)}</div>
+                    <div className="text-sm text-base-content/70">
+                      {format(new Date(violation.timestamp), 'PPpp')}
+                    </div>
+                  </div>
+                  <div className="badge badge-sm badge-outline badge-error">
+                    {violation.type}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            
+            <div className="mt-4 p-4 bg-warning bg-opacity-10 rounded-lg flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
+              <div>
+                <p className="text-sm">
+                  Violations can impact the candidate's final evaluation. Consider the context and frequency
+                  when making your hiring decision.
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Final Evaluation Card - Show when all rounds completed */}
       {interview && interview.score && (

@@ -395,16 +395,6 @@ const InterviewDetailPage: React.FC = () => {
                 </motion.div>
               ))}
             </div>
-            
-            <div className="mt-4 p-4 bg-warning bg-opacity-10 rounded-lg flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-              <div>
-                <p className="text-sm">
-                  Violations can impact the candidate's final evaluation. Consider the context and frequency
-                  when making your hiring decision.
-                </p>
-              </div>
-            </div>
           </div>
         </motion.div>
       )}

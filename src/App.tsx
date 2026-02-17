@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom"
 import { Landing } from "@/pages/Landing"
 import { NotFound } from "@/pages/NotFound"
 import { Login } from "@/pages/Login"
@@ -29,6 +29,23 @@ import Features from './pages/Features';
 import Pricing from './pages/Pricing';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ReactGA from "react-ga4";
+
+const GA_MEASUREMENT_ID = "G-8ME8VZGHWF";
+ReactGA.initialize(GA_MEASUREMENT_ID);
+
+function RouteTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    ReactGA.send({
+      hitType: "pageview",
+      page: `${location.pathname}${location.search}`,
+    });
+  }, [location]);
+
+  return null;
+}
 
 // In your router configuration
 
@@ -53,6 +70,7 @@ function App() {
   return (
     <div className="min-h-screen bg-base-100">
       <Router>
+        <RouteTracker />
         <Routes>
           <Route element={<MainLayout theme={theme} toggleTheme={toggleTheme} />}>
             <Route path="/" element={<Landing />} />

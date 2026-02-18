@@ -32,15 +32,22 @@ import Contact from './pages/Contact';
 import ReactGA from "react-ga4";
 
 const GA_MEASUREMENT_ID = "G-8ME8VZGHWF";
-ReactGA.initialize(GA_MEASUREMENT_ID);
+
+ReactGA.initialize(GA_MEASUREMENT_ID, {
+  gaOptions: { debug_mode: true },
+});
 
 function RouteTracker() {
   const location = useLocation();
 
   useEffect(() => {
+    // Send full URL (page_location) for proper UTM/referrer attribution.
+    // GA4 prioritizes UTM params over document referrer.
     ReactGA.send({
       hitType: "pageview",
       page: `${location.pathname}${location.search}`,
+      location: window.location.href,
+      title: document.title,
     });
   }, [location]);
 

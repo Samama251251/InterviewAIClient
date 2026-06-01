@@ -36,3 +36,96 @@
   --color-error: oklch(71.76% 0.221 22.18);
   --color-error-content: oklch(0% 0 0);
 }
+
+/* Landing page design system */
+:root {
+  --land-bg: #080c10;
+  --land-surface: #0d1117;
+  --land-surface-2: #161b22;
+  --land-border: rgba(255,255,255,0.07);
+  --land-border-accent: rgba(0,180,140,0.25);
+  --land-text: #eef2f7;
+  --land-text-muted: rgba(238,242,247,0.55);
+  --land-text-dim: rgba(238,242,247,0.3);
+  --land-accent: var(--color-primary);
+  --land-accent-glow: rgba(45,212,191,0.15);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+
+.land-dot-grid {
+  background-image: radial-gradient(circle, rgba(45,212,191,0.12) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 100%);
+}
+
+.land-card {
+  background: var(--land-surface);
+  border: 1px solid var(--land-border);
+  border-radius: 16px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.land-card:hover {
+  border-color: var(--land-border-accent);
+  box-shadow: 0 0 30px var(--land-accent-glow);
+}
+
+.land-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(45,212,191,0.08);
+  border: 1px solid rgba(45,212,191,0.2);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.land-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-primary);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  padding: 13px 26px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.land-btn-primary:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.land-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.05);
+  color: var(--land-text);
+  border: 1px solid var(--land-border);
+  border-radius: 8px;
+  padding: 13px 26px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.land-btn-ghost:hover {
+  background: rgba(255,255,255,0.09);
+  border-color: rgba(255,255,255,0.15);
+}
